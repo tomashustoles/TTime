@@ -12,6 +12,7 @@ struct TTimeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .theme(DefaultTheme())
         }
     }
 }
