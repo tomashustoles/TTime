@@ -87,9 +87,14 @@ struct MotionTokens {
 struct GradientPreset: Identifiable {
     let id: String
     let name: String
-    let colors: [Color]
-    let startPoint: UnitPoint
-    let endPoint: UnitPoint
+    /// 9 colors for a 3x3 MeshGradient, ordered row-major: top-left to bottom-right
+    let meshColors: [Color]
+    
+    static let meshPoints: [SIMD2<Float>] = [
+        .init(x: 0, y: 0),   .init(x: 0.5, y: 0),   .init(x: 1, y: 0),
+        .init(x: 0, y: 0.5), .init(x: 0.5, y: 0.5), .init(x: 1, y: 0.5),
+        .init(x: 0, y: 1),   .init(x: 0.5, y: 1),   .init(x: 1, y: 1)
+    ]
 }
 
 // MARK: - Default Theme
@@ -141,103 +146,76 @@ struct DefaultTheme: Theme {
     
     let gradients: [GradientPreset] = [
         GradientPreset(
-            id: "classic",
-            name: "Classic White",
-            colors: [
-                Color(hex: "FFFFFF"),
-                Color(hex: "F8F8F8"),
-                Color(hex: "FFFFFF")
-            ],
-            startPoint: .center,
-            endPoint: .bottomTrailing
+            id: "ocean",
+            name: "Ocean Breeze",
+            meshColors: [
+                Color(red: 0.05, green: 0.12, blue: 0.30), Color(red: 0.10, green: 0.35, blue: 0.65), Color(red: 0.15, green: 0.50, blue: 0.72),
+                Color(red: 0.08, green: 0.28, blue: 0.55), Color(red: 0.20, green: 0.55, blue: 0.75), Color(red: 0.30, green: 0.70, blue: 0.78),
+                Color(red: 0.12, green: 0.40, blue: 0.62), Color(red: 0.25, green: 0.62, blue: 0.72), Color(red: 0.45, green: 0.80, blue: 0.85)
+            ]
         ),
         GradientPreset(
-            id: "calm",
-            name: "Calm",
-            colors: [
-                Color(red: 0.98, green: 0.98, blue: 1.0),
-                Color(red: 0.95, green: 0.96, blue: 0.98),
-                Color(red: 0.97, green: 0.97, blue: 0.99)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        GradientPreset(
-            id: "warm",
-            name: "Warm",
-            colors: [
-                Color(red: 1.0, green: 0.98, blue: 0.96),
-                Color(red: 0.98, green: 0.96, blue: 0.95),
-                Color(red: 0.99, green: 0.97, blue: 0.96)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "golden",
+            name: "Golden Hour",
+            meshColors: [
+                Color(red: 0.98, green: 0.88, blue: 0.65), Color(red: 0.95, green: 0.78, blue: 0.45), Color(red: 0.98, green: 0.92, blue: 0.78),
+                Color(red: 0.96, green: 0.72, blue: 0.40), Color(red: 0.98, green: 0.82, blue: 0.55), Color(red: 0.95, green: 0.65, blue: 0.42),
+                Color(red: 0.99, green: 0.95, blue: 0.85), Color(red: 0.97, green: 0.75, blue: 0.50), Color(red: 0.94, green: 0.60, blue: 0.35)
+            ]
         ),
         GradientPreset(
             id: "aurora",
-            name: "Aurora Night",
-            colors: [
-                Color(red: 0.4, green: 0.3, blue: 0.7),
-                Color(red: 0.2, green: 0.4, blue: 0.8),
-                Color(red: 0.5, green: 0.2, blue: 0.6)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            name: "Aurora Borealis",
+            meshColors: [
+                Color(red: 0.10, green: 0.05, blue: 0.25), Color(red: 0.15, green: 0.45, blue: 0.30), Color(red: 0.08, green: 0.12, blue: 0.35),
+                Color(red: 0.30, green: 0.15, blue: 0.55), Color(red: 0.10, green: 0.65, blue: 0.50), Color(red: 0.20, green: 0.35, blue: 0.60),
+                Color(red: 0.55, green: 0.15, blue: 0.50), Color(red: 0.15, green: 0.50, blue: 0.45), Color(red: 0.08, green: 0.10, blue: 0.30)
+            ]
         ),
         GradientPreset(
-            id: "sunset",
-            name: "Sunset Fade",
-            colors: [
-                Color(red: 1.0, green: 0.6, blue: 0.4),
-                Color(red: 0.98, green: 0.5, blue: 0.6),
-                Color(red: 0.95, green: 0.7, blue: 0.5)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "rose",
+            name: "Rose Quartz",
+            meshColors: [
+                Color(red: 0.98, green: 0.88, blue: 0.90), Color(red: 0.95, green: 0.78, blue: 0.82), Color(red: 0.99, green: 0.92, blue: 0.90),
+                Color(red: 0.92, green: 0.72, blue: 0.78), Color(red: 0.96, green: 0.82, blue: 0.85), Color(red: 0.98, green: 0.90, blue: 0.88),
+                Color(red: 0.99, green: 0.95, blue: 0.93), Color(red: 0.94, green: 0.80, blue: 0.82), Color(red: 0.90, green: 0.70, blue: 0.75)
+            ]
         ),
         GradientPreset(
-            id: "neon",
-            name: "Neon Pulse",
-            colors: [
-                Color(red: 0.7, green: 0.3, blue: 0.9),
-                Color(red: 0.3, green: 0.7, blue: 0.9),
-                Color(red: 0.9, green: 0.4, blue: 0.7)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "cosmos",
+            name: "Midnight Cosmos",
+            meshColors: [
+                Color(red: 0.06, green: 0.04, blue: 0.18), Color(red: 0.12, green: 0.06, blue: 0.28), Color(red: 0.08, green: 0.08, blue: 0.22),
+                Color(red: 0.15, green: 0.05, blue: 0.30), Color(red: 0.10, green: 0.10, blue: 0.25), Color(red: 0.05, green: 0.12, blue: 0.22),
+                Color(red: 0.08, green: 0.06, blue: 0.20), Color(red: 0.18, green: 0.10, blue: 0.30), Color(red: 0.06, green: 0.10, blue: 0.20)
+            ]
         ),
         GradientPreset(
-            id: "charcoal",
-            name: "Charcoal",
-            colors: [
-                Color(red: 0.15, green: 0.15, blue: 0.15),
-                Color(red: 0.2, green: 0.2, blue: 0.22),
-                Color(red: 0.18, green: 0.18, blue: 0.2)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "tropical",
+            name: "Tropical Sunset",
+            meshColors: [
+                Color(red: 0.98, green: 0.55, blue: 0.35), Color(red: 0.95, green: 0.40, blue: 0.50), Color(red: 0.98, green: 0.65, blue: 0.40),
+                Color(red: 0.92, green: 0.30, blue: 0.45), Color(red: 0.96, green: 0.50, blue: 0.42), Color(red: 0.98, green: 0.75, blue: 0.30),
+                Color(red: 0.88, green: 0.25, blue: 0.50), Color(red: 0.95, green: 0.45, blue: 0.38), Color(red: 0.98, green: 0.82, blue: 0.35)
+            ]
         ),
         GradientPreset(
-            id: "deepblue",
-            name: "Deep Blue",
-            colors: [
-                Color(red: 0.1, green: 0.15, blue: 0.3),
-                Color(red: 0.15, green: 0.2, blue: 0.35),
-                Color(red: 0.12, green: 0.18, blue: 0.32)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "forest",
+            name: "Forest Canopy",
+            meshColors: [
+                Color(red: 0.05, green: 0.22, blue: 0.12), Color(red: 0.12, green: 0.35, blue: 0.18), Color(red: 0.08, green: 0.28, blue: 0.15),
+                Color(red: 0.15, green: 0.40, blue: 0.22), Color(red: 0.25, green: 0.50, blue: 0.30), Color(red: 0.18, green: 0.42, blue: 0.28),
+                Color(red: 0.20, green: 0.38, blue: 0.20), Color(red: 0.30, green: 0.52, blue: 0.32), Color(red: 0.22, green: 0.45, blue: 0.25)
+            ]
         ),
         GradientPreset(
-            id: "teal",
-            name: "Muted Teal",
-            colors: [
-                Color(red: 0.7, green: 0.85, blue: 0.82),
-                Color(red: 0.75, green: 0.88, blue: 0.85),
-                Color(red: 0.72, green: 0.86, blue: 0.83)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            id: "lavender",
+            name: "Lavender Dream",
+            meshColors: [
+                Color(red: 0.82, green: 0.78, blue: 0.95), Color(red: 0.72, green: 0.70, blue: 0.92), Color(red: 0.85, green: 0.82, blue: 0.96),
+                Color(red: 0.75, green: 0.72, blue: 0.90), Color(red: 0.80, green: 0.76, blue: 0.94), Color(red: 0.70, green: 0.75, blue: 0.92),
+                Color(red: 0.88, green: 0.85, blue: 0.97), Color(red: 0.78, green: 0.74, blue: 0.92), Color(red: 0.72, green: 0.72, blue: 0.88)
+            ]
         )
     ]
 }

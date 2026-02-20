@@ -15,7 +15,6 @@ struct SettingsPanel: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            // Settings Sidebar Content
             ScrollView {
                 VStack(alignment: .leading, spacing: theme.spacing.large) {
                     // Header
@@ -26,14 +25,14 @@ struct SettingsPanel: View {
                                 weight: .bold,
                                 design: .default
                             ))
-                            .foregroundStyle(theme.colors.foreground)
+                            .foregroundStyle(.primary)
                         
                         Spacer()
                         
                         Button(action: onClose) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 40))
-                                .foregroundStyle(theme.colors.secondaryForeground)
+                                .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -42,7 +41,6 @@ struct SettingsPanel: View {
                     // Design Section
                     SettingsCard(title: "Design", icon: "paintbrush.fill") {
                         VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            // Dark / Light Mode
                             SettingSectionHeader(title: "Appearance Mode")
                             
                             TVSegmentedControl(
@@ -54,36 +52,57 @@ struct SettingsPanel: View {
                                 .background(theme.colors.secondaryForeground.opacity(0.2))
                                 .padding(.vertical, theme.spacing.tiny)
                             
-                            // Backgrounds
-                            SettingSectionHeader(title: "Background")
+                            TVToggle(
+                                title: "Background Gradients",
+                                subtitle: "Colorful gradient backgrounds",
+                                isOn: $appState.backgroundGradientsEnabled
+                            )
                             
-                            LazyVGrid(columns: [
-                                GridItem(.adaptive(minimum: 140, maximum: 160), spacing: theme.spacing.small)
-                            ], spacing: theme.spacing.small) {
-                                ForEach(0..<theme.gradients.count, id: \.self) { index in
-                                    BackgroundSwatchButton(
-                                        gradient: theme.gradients[index],
-                                        isSelected: appState.selectedGradientIndex == index,
-                                        isAnimated: appState.useAnimatedGradient && appState.selectedGradientIndex == index
-                                    ) {
-                                        appState.selectedGradientIndex = index
+                            if appState.backgroundGradientsEnabled {
+                                Divider()
+                                    .background(theme.colors.secondaryForeground.opacity(0.2))
+                                    .padding(.vertical, theme.spacing.tiny)
+                                
+                                TVToggle(
+                                    title: "Organic Gradients",
+                                    subtitle: "Reacts to weather, time & season",
+                                    isOn: $appState.organicGradientEnabled
+                                )
+                                
+                                if !appState.organicGradientEnabled {
+                                    Divider()
+                                        .background(theme.colors.secondaryForeground.opacity(0.2))
+                                        .padding(.vertical, theme.spacing.tiny)
+                                    
+                                    SettingSectionHeader(title: "Color Palette")
+                                    
+                                    LazyVGrid(columns: [
+                                        GridItem(.adaptive(minimum: 140, maximum: 160), spacing: theme.spacing.small)
+                                    ], spacing: theme.spacing.small) {
+                                        ForEach(0..<theme.gradients.count, id: \.self) { index in
+                                            BackgroundSwatchButton(
+                                                gradient: theme.gradients[index],
+                                                isSelected: appState.selectedGradientIndex == index,
+                                                isAnimated: appState.useAnimatedGradient && appState.selectedGradientIndex == index
+                                            ) {
+                                                appState.selectedGradientIndex = index
+                                            }
+                                        }
                                     }
+                                    
+                                    TVToggle(
+                                        title: "Animate gradient",
+                                        subtitle: "Slow, subtle motion",
+                                        isOn: $appState.useAnimatedGradient
+                                    )
                                 }
                             }
-                            
-                            // Animated gradient toggle
-                            TVToggle(
-                                title: "Animate gradient",
-                                subtitle: "Slow, subtle motion",
-                                isOn: $appState.useAnimatedGradient
-                            )
                         }
                     }
                     
                     // Time Section
                     SettingsCard(title: "Time", icon: "clock.fill") {
                         VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            // Time Format
                             SettingSectionHeader(title: "Time Format")
                             
                             TVSegmentedControl(
@@ -96,7 +115,6 @@ struct SettingsPanel: View {
                                 .background(theme.colors.secondaryForeground.opacity(0.2))
                                 .padding(.vertical, theme.spacing.tiny)
                             
-                            // Clock Font
                             SettingSectionHeader(title: "Clock Font")
                             
                             HStack(spacing: theme.spacing.medium) {
@@ -115,7 +133,6 @@ struct SettingsPanel: View {
                     // Weather Section
                     SettingsCard(title: "Weather", icon: "cloud.sun.fill") {
                         VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            // Temperature Unit
                             SettingSectionHeader(title: "Temperature Unit")
                             
                             TVSegmentedControl(
@@ -127,7 +144,6 @@ struct SettingsPanel: View {
                                 .background(theme.colors.secondaryForeground.opacity(0.2))
                                 .padding(.vertical, theme.spacing.tiny)
                             
-                            // Location Visibility
                             TVToggle(
                                 title: "Show location",
                                 subtitle: "Displays city name under temperature",
@@ -138,7 +154,6 @@ struct SettingsPanel: View {
                                 .background(theme.colors.secondaryForeground.opacity(0.2))
                                 .padding(.vertical, theme.spacing.tiny)
                             
-                            // Location Source
                             SettingSectionHeader(title: "Location Source")
                             
                             VStack(spacing: theme.spacing.tiny) {
@@ -196,17 +211,35 @@ struct SettingsPanel: View {
                         }
                     }
                     
-                    // Bottom padding
                     Color.clear.frame(height: theme.spacing.medium)
                 }
                 .padding(theme.spacing.large)
             }
             .frame(width: 800)
+            .clipShape(RoundedRectangle(cornerRadius: 32))
             .background {
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(theme.colors.sidebarBlur)
-                    .shadow(color: .black.opacity(0.3), radius: 60, x: 20, y: 0)
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 32)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.5),
+                                        Color.white.opacity(0.15),
+                                        Color.white.opacity(0.05)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    }
+                    .shadow(color: .black.opacity(0.2), radius: 50, x: 15, y: 0)
+                    .shadow(color: .white.opacity(0.05), radius: 1, x: -1, y: -1)
             }
+            .padding(.vertical, 24)
+            .padding(.leading, 16)
             
             Spacer()
         }
@@ -236,7 +269,7 @@ struct SettingsCard<Content: View>: View {
                         weight: .bold,
                         design: .default
                     ))
-                    .foregroundStyle(theme.colors.foreground)
+                    .foregroundStyle(.primary)
             }
             
             content
@@ -244,10 +277,10 @@ struct SettingsCard<Content: View>: View {
         .padding(theme.spacing.medium)
         .background {
             RoundedRectangle(cornerRadius: theme.radius.medium)
-                .fill(theme.colors.cardBackground)
+                .fill(.thinMaterial)
                 .overlay {
                     RoundedRectangle(cornerRadius: theme.radius.medium)
-                        .strokeBorder(theme.colors.cardBorder, lineWidth: 1)
+                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 0.5)
                 }
         }
     }

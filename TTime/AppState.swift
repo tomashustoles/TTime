@@ -21,6 +21,18 @@ class AppState {
         }
     }
     
+    var backgroundGradientsEnabled: Bool = true {
+        didSet {
+            UserDefaults.standard.set(backgroundGradientsEnabled, forKey: "backgroundGradientsEnabled")
+        }
+    }
+    
+    var organicGradientEnabled: Bool = false {
+        didSet {
+            UserDefaults.standard.set(organicGradientEnabled, forKey: "organicGradientEnabled")
+        }
+    }
+    
     var selectedGradientIndex: Int = 0 {
         didSet {
             UserDefaults.standard.set(selectedGradientIndex, forKey: "selectedGradientIndex")
@@ -95,6 +107,9 @@ class AppState {
         }
     }
     
+    // MARK: - Cached Weather Data (for organic gradient)
+    var currentTemperature: Double? = nil
+    
     // MARK: - Services
     let weatherService: WeatherServiceProtocol
     let newsService: NewsServiceProtocol
@@ -126,6 +141,10 @@ class AppState {
             appearanceMode = mode
         }
         
+        if UserDefaults.standard.object(forKey: "backgroundGradientsEnabled") != nil {
+            backgroundGradientsEnabled = UserDefaults.standard.bool(forKey: "backgroundGradientsEnabled")
+        }
+        organicGradientEnabled = UserDefaults.standard.bool(forKey: "organicGradientEnabled")
         selectedGradientIndex = UserDefaults.standard.integer(forKey: "selectedGradientIndex")
         useAnimatedGradient = UserDefaults.standard.bool(forKey: "useAnimatedGradient")
         
@@ -182,7 +201,8 @@ extension AppState {
     static func resetToDefaults() {
         let defaults = UserDefaults.standard
         let keys = [
-            "appearanceMode", "selectedGradientIndex", "useAnimatedGradient",
+            "appearanceMode", "backgroundGradientsEnabled", "organicGradientEnabled",
+            "selectedGradientIndex", "useAnimatedGradient",
             "timeFormat", "clockFontStyle", "selectedTimezone",
             "temperatureUnit", "showWeatherLocation", "weatherLocation",
             "newsCategory", "selectedNewsSource", "enabledTickers"
@@ -194,6 +214,8 @@ extension AppState {
     func exportSettings() -> String {
         let dict: [String: Any] = [
             "appearanceMode": appearanceMode.rawValue,
+            "backgroundGradientsEnabled": backgroundGradientsEnabled,
+            "organicGradientEnabled": organicGradientEnabled,
             "selectedGradientIndex": selectedGradientIndex,
             "useAnimatedGradient": useAnimatedGradient,
             "timeFormat": timeFormat.rawValue,

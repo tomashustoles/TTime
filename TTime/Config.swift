@@ -19,26 +19,20 @@ struct Config {
     
     // MARK: - API Keys
     
-    /// OpenWeather API key for weather data
-    /// Get yours at: https://openweathermap.org/api
-    /// Falls back to environment variable if empty
+    /// OpenWeather API key — resolved from env var, then Secrets.swift (gitignored)
     static let weatherAPIKey: String = {
         if let envKey = ProcessInfo.processInfo.environment["WEATHER_API_KEY"], !envKey.isEmpty {
             return envKey
         }
-        // Your OpenWeather API key
-        return "2b95be6fd1dbff7497feae8485840a7a"
+        return Secrets.weatherAPIKey
     }()
     
-    /// NewsAPI.org key for news headlines
-    /// Get yours at: https://newsapi.org
-    /// Falls back to environment variable if empty
+    /// NewsAPI key — resolved from env var, then Secrets.swift (gitignored)
     static let newsAPIKey: String = {
         if let envKey = ProcessInfo.processInfo.environment["NEWS_API_KEY"], !envKey.isEmpty {
             return envKey
         }
-        // Your NewsAPI key
-        return "e49bec10c3a143cfade740bfaf5c3290"
+        return Secrets.newsAPIKey
     }()
     
     // MARK: - News Configuration

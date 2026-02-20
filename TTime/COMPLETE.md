@@ -22,8 +22,8 @@ All real APIs are **configured and enabled**. Just build and run!
 
 ### 3. APIs Configured ✅
 ```
-Weather API: 2b95be6fd1dbff7497feae8485840a7a (OpenWeather)
-News API: e49bec10c3a143cfade740bfaf5c3290 (NewsAPI.org)
+Weather API: Set via WEATHER_API_KEY environment variable (OpenWeather)
+News API: Set via NEWS_API_KEY environment variable (NewsAPI.org)
 Markets: Free APIs - no key needed! (CoinGecko + Yahoo)
 ```
 

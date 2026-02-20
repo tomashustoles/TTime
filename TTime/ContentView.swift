@@ -11,23 +11,33 @@ struct ContentView: View {
     @Environment(\.theme) private var theme
     @State private var appState = AppState()
     
+    private var safeGradientIndex: Int {
+        min(appState.selectedGradientIndex, theme.gradients.count - 1)
+    }
+    
     var body: some View {
         ZStack {
-            // Gradient background - brighter in the middle
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "FFFFFF"), // Brighter white in center
-                    Color(hex: "F8F8F8")  // #F8F8F8 at edges
-                ]),
-                center: .center,
-                startRadius: 100,
-                endRadius: 800
-            )
+            // Dynamic background layer
+            Group {
+                if !appState.backgroundGradientsEnabled {
+                    (appState.appearanceMode == .dark ? Color.black : Color.white)
+                } else if appState.organicGradientEnabled {
+                    OrganicGradientBackground(temperature: appState.currentTemperature)
+                } else if appState.useAnimatedGradient {
+                    AnimatedGradientBackground(gradientPreset: theme.gradients[safeGradientIndex])
+                } else {
+                    MeshGradient(
+                        width: 3,
+                        height: 3,
+                        points: GradientPreset.meshPoints,
+                        colors: theme.gradients[safeGradientIndex].meshColors
+                    )
+                }
+            }
             .ignoresSafeArea()
             
             // Main dashboard layout
             ZStack {
-                // Invisible tap area to open settings (click anywhere on screen)
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -41,7 +51,6 @@ struct ContentView: View {
                 VStack {
                     HStack {
                         Spacer()
-                        // Subtle hint: gear icon in top-right
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 20))
                             .foregroundStyle(theme.colors.secondaryForeground.opacity(0.3))
@@ -50,13 +59,10 @@ struct ContentView: View {
                     Spacer()
                 }
                 
-                // Center: Large clock
                 ClockView(timezone: appState.selectedTimezone)
                 
                 VStack {
-                    // Top row
                     HStack(alignment: .top) {
-                        // Top-left: App identity / menu button
                         AppIdentityButton {
                             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                                 appState.isSettingsPanelOpen.toggle()
@@ -66,7 +72,6 @@ struct ContentView: View {
                         
                         Spacer()
                         
-                        // Top-right: Weather
                         WeatherView(
                             weatherService: appState.weatherService,
                             temperatureUnit: appState.temperatureUnit
@@ -76,26 +81,21 @@ struct ContentView: View {
                     
                     Spacer()
                     
-                    // Bottom row
                     HStack(alignment: .bottom) {
-                        // Bottom-left: News
                         NewsView(newsService: appState.newsService)
                             .focusable()
                         
                         Spacer()
                         
-                        // Bottom-right: Markets
                         MarketView(marketService: appState.marketService)
                             .focusable()
                     }
                 }
                 .padding(theme.spacing.cornerPadding)
-                .allowsHitTesting(false) // Allow taps to pass through to the clear layer
+                .allowsHitTesting(false)
                 
-                // Settings panel overlay
                 if appState.isSettingsPanelOpen {
-                    // Semi-transparent overlay
-                    Color.black.opacity(0.5)
+                    Color.black.opacity(0.3)
                         .ignoresSafeArea()
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
@@ -103,7 +103,6 @@ struct ContentView: View {
                             }
                         }
                     
-                    // Settings sidebar from left
                     SettingsPanel(appState: appState) {
                         withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                             appState.isSettingsPanelOpen = false
@@ -113,19 +112,43 @@ struct ContentView: View {
             }
         }
         .persistentSystemOverlays(.hidden)
+        .gesture(
+            DragGesture(minimumDistance: 50)
+                .onEnded { value in
+                    if value.translation.width > 100 && abs(value.translation.height) < 80 {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                            appState.isSettingsPanelOpen = true
+                        }
+                    } else if value.translation.width < -100 && abs(value.translation.height) < 80 && appState.isSettingsPanelOpen {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                            appState.isSettingsPanelOpen = false
+                        }
+                    }
+                }
+        )
         .onTapGesture {
-            // Also allow tapping the main view to open settings
             if !appState.isSettingsPanelOpen {
                 withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                     appState.isSettingsPanelOpen = true
                 }
             }
         }
-        // Keyboard shortcut: Press "S" or Menu button to toggle settings
         .onPlayPauseCommand {
             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                 appState.isSettingsPanelOpen.toggle()
             }
+        }
+        .task {
+            await fetchTemperatureForOrganic()
+        }
+    }
+    
+    private func fetchTemperatureForOrganic() async {
+        do {
+            let weather = try await appState.weatherService.getCurrentWeather()
+            appState.currentTemperature = weather.temperature
+        } catch {
+            appState.currentTemperature = nil
         }
     }
 }

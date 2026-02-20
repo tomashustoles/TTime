@@ -172,11 +172,11 @@ struct BackgroundSwatchButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: theme.spacing.tiny) {
-                // Gradient Preview
-                LinearGradient(
-                    colors: gradient.colors,
-                    startPoint: gradient.startPoint,
-                    endPoint: gradient.endPoint
+                MeshGradient(
+                    width: 3,
+                    height: 3,
+                    points: GradientPreset.meshPoints,
+                    colors: gradient.meshColors
                 )
                 .frame(height: 80)
                 .clipShape(RoundedRectangle(cornerRadius: theme.radius.small))
@@ -201,7 +201,6 @@ struct BackgroundSwatchButton: View {
                     }
                 }
                 
-                // Label
                 Text(gradient.name)
                     .font(.system(
                         size: theme.typography.standardSize - 4,

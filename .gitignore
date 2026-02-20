@@ -1,5 +1,6 @@
 # API Keys - never commit these
 TTime/YOUR_API_KEYS.md
+TTime/Secrets.swift
 
 # Xcode
 *.xcuserstate

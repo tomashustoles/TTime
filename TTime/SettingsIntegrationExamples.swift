@@ -315,11 +315,12 @@ import Foundation
                  gradientPreset: theme.gradients[appState.selectedGradientIndex]
              )
          } else {
-             // Static linear gradient
-             LinearGradient(
-                 colors: theme.gradients[appState.selectedGradientIndex].colors,
-                 startPoint: theme.gradients[appState.selectedGradientIndex].startPoint,
-                 endPoint: theme.gradients[appState.selectedGradientIndex].endPoint
+             // Static mesh gradient
+             MeshGradient(
+                 width: 3,
+                 height: 3,
+                 points: GradientPreset.meshPoints,
+                 colors: theme.gradients[appState.selectedGradientIndex].meshColors
              )
          }
      }
