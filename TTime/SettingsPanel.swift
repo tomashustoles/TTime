@@ -10,213 +10,138 @@ import SwiftUI
 struct SettingsPanel: View {
     @Environment(\.theme) private var theme
     @Bindable var appState: AppState
-    
+
     let onClose: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: theme.spacing.large) {
-                    // Header
-                    HStack {
-                        Text("Settings")
-                            .font(.system(
-                                size: theme.typography.standardSize + 8,
-                                weight: .bold,
-                                design: .default
-                            ))
-                            .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
-                        Button(action: onClose) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 40))
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
+            VStack(spacing: 0) {
+
+                // MARK: - Header
+                HStack {
+                    Text("Settings")
+                        .font(.title2.bold())
+                    Spacer()
+                    Button(action: onClose) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.bottom, theme.spacing.small)
-                    
-                    // Design Section
-                    SettingsCard(title: "Design", icon: "paintbrush.fill") {
-                        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            SettingSectionHeader(title: "Appearance Mode")
-                            
-                            TVSegmentedControl(
-                                selection: $appState.appearanceMode,
-                                options: AppearanceMode.allCases
-                            )
-                            
-                            Divider()
-                                .background(theme.colors.secondaryForeground.opacity(0.2))
-                                .padding(.vertical, theme.spacing.tiny)
-                            
-                            TVToggle(
-                                title: "Background Gradients",
-                                subtitle: "Colorful gradient backgrounds",
-                                isOn: $appState.backgroundGradientsEnabled
-                            )
-                            
-                            if appState.backgroundGradientsEnabled {
-                                Divider()
-                                    .background(theme.colors.secondaryForeground.opacity(0.2))
-                                    .padding(.vertical, theme.spacing.tiny)
-                                
-                                TVToggle(
-                                    title: "Organic Gradients",
-                                    subtitle: "Reacts to weather, time & season",
-                                    isOn: $appState.organicGradientEnabled
-                                )
-                                
-                                if !appState.organicGradientEnabled {
-                                    Divider()
-                                        .background(theme.colors.secondaryForeground.opacity(0.2))
-                                        .padding(.vertical, theme.spacing.tiny)
-                                    
-                                    SettingSectionHeader(title: "Color Palette")
-                                    
-                                    LazyVGrid(columns: [
-                                        GridItem(.adaptive(minimum: 140, maximum: 160), spacing: theme.spacing.small)
-                                    ], spacing: theme.spacing.small) {
-                                        ForEach(0..<theme.gradients.count, id: \.self) { index in
-                                            BackgroundSwatchButton(
-                                                gradient: theme.gradients[index],
-                                                isSelected: appState.selectedGradientIndex == index,
-                                                isAnimated: appState.useAnimatedGradient && appState.selectedGradientIndex == index
-                                            ) {
-                                                appState.selectedGradientIndex = index
-                                            }
-                                        }
-                                    }
-                                    
-                                    TVToggle(
-                                        title: "Animate gradient",
-                                        subtitle: "Slow, subtle motion",
-                                        isOn: $appState.useAnimatedGradient
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Time Section
-                    SettingsCard(title: "Time", icon: "clock.fill") {
-                        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            SettingSectionHeader(title: "Time Format")
-                            
-                            TVSegmentedControl(
-                                selection: $appState.timeFormat,
-                                options: TimeFormat.allCases,
-                                displayName: { $0.displayName }
-                            )
-                            
-                            Divider()
-                                .background(theme.colors.secondaryForeground.opacity(0.2))
-                                .padding(.vertical, theme.spacing.tiny)
-                            
-                            SettingSectionHeader(title: "Clock Font")
-                            
-                            HStack(spacing: theme.spacing.medium) {
-                                ForEach(ClockFontStyle.allCases) { style in
-                                    ClockFontStyleButton(
-                                        style: style,
-                                        isSelected: appState.clockFontStyle == style
-                                    ) {
-                                        appState.clockFontStyle = style
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Weather Section
-                    SettingsCard(title: "Weather", icon: "cloud.sun.fill") {
-                        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            SettingSectionHeader(title: "Temperature Unit")
-                            
-                            TVSegmentedControl(
-                                selection: $appState.temperatureUnit,
-                                options: TemperatureUnit.allCases
-                            )
-                            
-                            Divider()
-                                .background(theme.colors.secondaryForeground.opacity(0.2))
-                                .padding(.vertical, theme.spacing.tiny)
-                            
-                            TVToggle(
-                                title: "Show location",
-                                subtitle: "Displays city name under temperature",
-                                isOn: $appState.showWeatherLocation
-                            )
-                            
-                            Divider()
-                                .background(theme.colors.secondaryForeground.opacity(0.2))
-                                .padding(.vertical, theme.spacing.tiny)
-                            
-                            SettingSectionHeader(title: "Location Source")
-                            
-                            VStack(spacing: theme.spacing.tiny) {
-                                ForEach(WeatherLocation.allCases) { location in
-                                    LocationRowButton(
-                                        location: location,
-                                        isSelected: appState.weatherLocation == location
-                                    ) {
-                                        appState.weatherLocation = location
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // News Section
-                    SettingsCard(title: "News", icon: "newspaper.fill") {
-                        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            SettingSectionHeader(title: "Category")
-                            
-                            LazyVGrid(columns: [
-                                GridItem(.adaptive(minimum: 160, maximum: 200), spacing: theme.spacing.small)
-                            ], spacing: theme.spacing.small) {
-                                ForEach(NewsCategory.allCases) { category in
-                                    NewsCategoryChip(
-                                        category: category,
-                                        isSelected: appState.newsCategory == category
-                                    ) {
-                                        appState.newsCategory = category
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Markets Section
-                    SettingsCard(title: "Markets", icon: "chart.line.uptrend.xyaxis") {
-                        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-                            SettingSectionHeader(title: "Visible Tickers")
-                            
-                            VStack(spacing: theme.spacing.tiny) {
-                                ForEach(MarketTicker.availableTickers) { ticker in
-                                    TickerToggleRow(
-                                        ticker: ticker,
-                                        isEnabled: appState.enabledTickers.contains(ticker.id)
-                                    ) { enabled in
-                                        if enabled {
-                                            appState.enabledTickers.insert(ticker.id)
-                                        } else {
-                                            appState.enabledTickers.remove(ticker.id)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    Color.clear.frame(height: theme.spacing.medium)
+                    .buttonStyle(.plain)
                 }
-                .padding(theme.spacing.large)
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 4)
+
+                // MARK: - Theme Section (outside Form to avoid row scaling on tvOS)
+                VStack(alignment: .leading, spacing: 14) {
+
+                    Text("THEME")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    // LazyVGrid guarantees equal-width, stable layout — no shift on selection
+                    LazyVGrid(
+                        columns: Array(
+                            repeating: GridItem(.flexible(), spacing: 10),
+                            count: ThemeStyle.allCases.count
+                        ),
+                        spacing: 0
+                    ) {
+                        ForEach(ThemeStyle.allCases) { style in
+                            ThemeStyleCard(
+                                style: style,
+                                isSelected: appState.themeStyle == style
+                            ) {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    appState.themeStyle = style
+                                }
+                            }
+                        }
+                    }
+
+                    // Appearance
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Appearance")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+
+                        Picker("Appearance", selection: $appState.appearanceMode) {
+                            ForEach(AppearanceMode.allCases) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+
+                // MARK: - Form (Markets + Time & Weather only)
+                Form {
+
+                    // MARK: Markets
+                    Section {
+                        ForEach(
+                            MarketTicker.availableTickers.filter { $0.id == "btc-usd" || $0.id == "sp500" }
+                        ) { ticker in
+                            Toggle(isOn: Binding(
+                                get: { appState.enabledTickers.contains(ticker.id) },
+                                set: { enabled in
+                                    if enabled {
+                                        appState.enabledTickers.insert(ticker.id)
+                                    } else {
+                                        appState.enabledTickers.remove(ticker.id)
+                                    }
+                                }
+                            )) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(ticker.symbol)
+                                        .font(.system(.body, design: .monospaced).bold())
+                                    Text(ticker.displayName)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Markets")
+                    }
+
+                    // MARK: Time & Weather
+                    Section {
+                        Picker("Time", selection: $appState.timeFormat) {
+                            ForEach(TimeFormat.allCases) { format in
+                                Text(format.displayName).tag(format)
+                            }
+                        }
+
+                        Picker("Weather", selection: $appState.temperatureUnit) {
+                            ForEach(TemperatureUnit.allCases) { unit in
+                                Text(unit.symbol).tag(unit)
+                            }
+                        }
+
+                        Toggle("Show Location", isOn: $appState.showWeatherLocation)
+
+                        Picker("Location", selection: $appState.weatherLocation) {
+                            ForEach(WeatherLocation.allCases) { location in
+                                Text(location.displayName).tag(location)
+                            }
+                        }
+                    } header: {
+                        Text("Time & Weather")
+                    }
+                }
+                .formStyle(.grouped)
+                .padding(.horizontal, 16)
+                #if !os(tvOS)
+                .scrollContentBackground(.hidden)
+                .scrollClipDisabled()
+                #endif
             }
-            .frame(width: 800)
-            .clipShape(RoundedRectangle(cornerRadius: 32))
+            .frame(width: 480)
             .background {
                 RoundedRectangle(cornerRadius: 32)
                     .fill(.ultraThinMaterial)
@@ -240,68 +165,9 @@ struct SettingsPanel: View {
             }
             .padding(.vertical, 24)
             .padding(.leading, 16)
-            
+
             Spacer()
         }
         .transition(.move(edge: .leading).combined(with: .opacity))
-    }
-}
-
-// MARK: - Settings Card
-
-struct SettingsCard<Content: View>: View {
-    @Environment(\.theme) private var theme
-    
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.medium) {
-            HStack(spacing: theme.spacing.small) {
-                Image(systemName: icon)
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundStyle(theme.colors.accent)
-                
-                Text(title)
-                    .font(.system(
-                        size: theme.typography.standardSize + 4,
-                        weight: .bold,
-                        design: .default
-                    ))
-                    .foregroundStyle(.primary)
-            }
-            
-            content
-        }
-        .padding(theme.spacing.medium)
-        .background {
-            RoundedRectangle(cornerRadius: theme.radius.medium)
-                .fill(.thinMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: theme.radius.medium)
-                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 0.5)
-                }
-        }
-    }
-}
-
-// MARK: - Section Header
-
-struct SettingSectionHeader: View {
-    @Environment(\.theme) private var theme
-    
-    let title: String
-    
-    var body: some View {
-        Text(title)
-            .font(.system(
-                size: theme.typography.standardSize - 2,
-                weight: .semibold,
-                design: .default
-            ))
-            .foregroundStyle(theme.colors.secondaryForeground)
-            .textCase(.uppercase)
-            .tracking(0.5)
     }
 }

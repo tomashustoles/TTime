@@ -11,8 +11,17 @@ import SwiftUI
 struct TTimeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .theme(DefaultTheme())
+            AppRoot()
         }
+    }
+}
+
+struct AppRoot: View {
+    @State private var appState = AppState()
+
+    var body: some View {
+        ContentView(appState: appState)
+            .theme(appState.themeStyle.theme)
+            .preferredColorScheme(appState.effectiveColorScheme)
     }
 }

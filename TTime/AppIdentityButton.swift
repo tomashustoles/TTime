@@ -10,6 +10,7 @@ import SwiftUI
 struct AppIdentityButton: View {
     @Environment(\.theme) private var theme
     @Environment(\.isFocused) private var isFocused
+    @Environment(\.adaptiveForeground) private var foreground
     
     let action: () -> Void
     
@@ -22,7 +23,7 @@ struct AppIdentityButton: View {
                         weight: theme.typography.weight,
                         design: .default
                     ))
-                    .foregroundStyle(theme.colors.foreground)
+                    .foregroundStyle(foreground)
                 
                 Text(currentDayAndMonth)
                     .font(.system(
@@ -30,7 +31,7 @@ struct AppIdentityButton: View {
                         weight: theme.typography.weight,
                         design: .default
                     ))
-                    .foregroundStyle(theme.colors.foreground)
+                    .foregroundStyle(foreground)
                 
                 Text(currentYear)
                     .font(.system(
@@ -38,7 +39,7 @@ struct AppIdentityButton: View {
                         weight: theme.typography.weight,
                         design: .default
                     ))
-                    .foregroundStyle(theme.colors.foreground)
+                    .foregroundStyle(foreground)
             }
             .padding(theme.spacing.small)
             .background {

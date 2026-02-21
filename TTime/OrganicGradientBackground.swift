@@ -7,7 +7,10 @@ import SwiftUI
 
 struct OrganicGradientBackground: View {
     let temperature: Double?
-    
+    /// Override the fractional hour used for the time-of-day palette.
+    /// nil = follow the real clock; 12.0 = force midday (light); 2.0 = force night (dark).
+    var forcedHour: Double? = nil
+
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0)) { timeline in
             let now = timeline.date
@@ -15,7 +18,7 @@ struct OrganicGradientBackground: View {
             let hour = Double(calendar.component(.hour, from: now))
             let minute = Double(calendar.component(.minute, from: now))
             let month = calendar.component(.month, from: now)
-            let fractionalHour = hour + minute / 60.0
+            let fractionalHour = forcedHour ?? (hour + minute / 60.0)
             let time = now.timeIntervalSinceReferenceDate
             
             let baseColors = Self.timeOfDayColors(fractionalHour: fractionalHour)
@@ -84,47 +87,48 @@ struct OrganicGradientBackground: View {
     }
     
     // MARK: - Base Palettes (9 colors each for 3x3 mesh)
-    
+    // Calm, desaturated, beautiful — like fine watercolour washes
+
     private static let dawnColors: [Color] = [
-        Color(red: 0.45, green: 0.35, blue: 0.55), Color(red: 0.70, green: 0.50, blue: 0.55), Color(red: 0.90, green: 0.65, blue: 0.50),
-        Color(red: 0.55, green: 0.40, blue: 0.58), Color(red: 0.85, green: 0.60, blue: 0.55), Color(red: 0.95, green: 0.75, blue: 0.55),
-        Color(red: 0.65, green: 0.50, blue: 0.60), Color(red: 0.90, green: 0.70, blue: 0.58), Color(red: 0.98, green: 0.85, blue: 0.65)
+        Color(red: 0.76, green: 0.66, blue: 0.74), Color(red: 0.88, green: 0.72, blue: 0.68), Color(red: 0.94, green: 0.80, blue: 0.66),
+        Color(red: 0.78, green: 0.68, blue: 0.74), Color(red: 0.90, green: 0.74, blue: 0.68), Color(red: 0.95, green: 0.83, blue: 0.68),
+        Color(red: 0.82, green: 0.72, blue: 0.74), Color(red: 0.92, green: 0.78, blue: 0.70), Color(red: 0.96, green: 0.88, blue: 0.74)
     ]
-    
+
     private static let morningColors: [Color] = [
-        Color(red: 0.55, green: 0.75, blue: 0.92), Color(red: 0.65, green: 0.82, blue: 0.95), Color(red: 0.78, green: 0.88, blue: 0.96),
-        Color(red: 0.60, green: 0.78, blue: 0.90), Color(red: 0.75, green: 0.88, blue: 0.95), Color(red: 0.88, green: 0.92, blue: 0.95),
-        Color(red: 0.70, green: 0.85, blue: 0.92), Color(red: 0.85, green: 0.90, blue: 0.94), Color(red: 0.95, green: 0.95, blue: 0.88)
+        Color(red: 0.76, green: 0.87, blue: 0.95), Color(red: 0.82, green: 0.90, blue: 0.96), Color(red: 0.89, green: 0.93, blue: 0.96),
+        Color(red: 0.78, green: 0.88, blue: 0.94), Color(red: 0.84, green: 0.91, blue: 0.95), Color(red: 0.91, green: 0.94, blue: 0.95),
+        Color(red: 0.83, green: 0.91, blue: 0.94), Color(red: 0.89, green: 0.93, blue: 0.94), Color(red: 0.95, green: 0.95, blue: 0.92)
     ]
-    
+
     private static let middayColors: [Color] = [
-        Color(red: 0.52, green: 0.78, blue: 0.98), Color(red: 0.65, green: 0.85, blue: 0.98), Color(red: 0.75, green: 0.90, blue: 0.99),
-        Color(red: 0.60, green: 0.82, blue: 0.97), Color(red: 0.80, green: 0.92, blue: 0.99), Color(red: 0.90, green: 0.95, blue: 0.98),
-        Color(red: 0.72, green: 0.88, blue: 0.98), Color(red: 0.88, green: 0.94, blue: 0.98), Color(red: 0.96, green: 0.97, blue: 0.95)
+        Color(red: 0.74, green: 0.87, blue: 0.96), Color(red: 0.80, green: 0.90, blue: 0.97), Color(red: 0.87, green: 0.93, blue: 0.97),
+        Color(red: 0.77, green: 0.89, blue: 0.96), Color(red: 0.84, green: 0.92, blue: 0.97), Color(red: 0.91, green: 0.95, blue: 0.97),
+        Color(red: 0.82, green: 0.91, blue: 0.96), Color(red: 0.89, green: 0.94, blue: 0.96), Color(red: 0.95, green: 0.96, blue: 0.94)
     ]
-    
+
     private static let afternoonColors: [Color] = [
-        Color(red: 0.70, green: 0.82, blue: 0.92), Color(red: 0.85, green: 0.82, blue: 0.78), Color(red: 0.95, green: 0.85, blue: 0.68),
-        Color(red: 0.75, green: 0.80, blue: 0.85), Color(red: 0.92, green: 0.85, blue: 0.72), Color(red: 0.98, green: 0.88, blue: 0.65),
-        Color(red: 0.82, green: 0.82, blue: 0.78), Color(red: 0.95, green: 0.88, blue: 0.70), Color(red: 0.98, green: 0.82, blue: 0.58)
+        Color(red: 0.84, green: 0.88, blue: 0.91), Color(red: 0.92, green: 0.89, blue: 0.82), Color(red: 0.96, green: 0.90, blue: 0.76),
+        Color(red: 0.86, green: 0.87, blue: 0.87), Color(red: 0.93, green: 0.89, blue: 0.79), Color(red: 0.97, green: 0.91, blue: 0.72),
+        Color(red: 0.89, green: 0.88, blue: 0.84), Color(red: 0.95, green: 0.90, blue: 0.76), Color(red: 0.97, green: 0.87, blue: 0.68)
     ]
-    
+
     private static let sunsetColors: [Color] = [
-        Color(red: 0.45, green: 0.30, blue: 0.55), Color(red: 0.75, green: 0.35, blue: 0.45), Color(red: 0.95, green: 0.50, blue: 0.30),
-        Color(red: 0.55, green: 0.28, blue: 0.50), Color(red: 0.88, green: 0.42, blue: 0.35), Color(red: 0.98, green: 0.60, blue: 0.25),
-        Color(red: 0.65, green: 0.30, blue: 0.45), Color(red: 0.92, green: 0.55, blue: 0.30), Color(red: 0.98, green: 0.75, blue: 0.35)
+        Color(red: 0.66, green: 0.50, blue: 0.58), Color(red: 0.84, green: 0.58, blue: 0.52), Color(red: 0.94, green: 0.68, blue: 0.52),
+        Color(red: 0.70, green: 0.50, blue: 0.56), Color(red: 0.88, green: 0.60, blue: 0.52), Color(red: 0.95, green: 0.72, blue: 0.52),
+        Color(red: 0.74, green: 0.54, blue: 0.56), Color(red: 0.90, green: 0.66, blue: 0.52), Color(red: 0.96, green: 0.80, blue: 0.56)
     ]
-    
+
     private static let twilightColors: [Color] = [
-        Color(red: 0.10, green: 0.08, blue: 0.25), Color(red: 0.18, green: 0.12, blue: 0.35), Color(red: 0.30, green: 0.15, blue: 0.40),
-        Color(red: 0.12, green: 0.10, blue: 0.28), Color(red: 0.22, green: 0.15, blue: 0.38), Color(red: 0.35, green: 0.18, blue: 0.42),
-        Color(red: 0.15, green: 0.12, blue: 0.30), Color(red: 0.25, green: 0.18, blue: 0.40), Color(red: 0.38, green: 0.22, blue: 0.35)
+        Color(red: 0.22, green: 0.20, blue: 0.38), Color(red: 0.28, green: 0.22, blue: 0.46), Color(red: 0.34, green: 0.24, blue: 0.48),
+        Color(red: 0.24, green: 0.22, blue: 0.42), Color(red: 0.30, green: 0.24, blue: 0.48), Color(red: 0.36, green: 0.26, blue: 0.48),
+        Color(red: 0.26, green: 0.24, blue: 0.44), Color(red: 0.32, green: 0.26, blue: 0.46), Color(red: 0.36, green: 0.28, blue: 0.42)
     ]
-    
+
     private static let nightColors: [Color] = [
-        Color(red: 0.04, green: 0.04, blue: 0.12), Color(red: 0.06, green: 0.06, blue: 0.16), Color(red: 0.05, green: 0.05, blue: 0.14),
-        Color(red: 0.05, green: 0.05, blue: 0.14), Color(red: 0.07, green: 0.07, blue: 0.18), Color(red: 0.06, green: 0.06, blue: 0.15),
-        Color(red: 0.04, green: 0.04, blue: 0.12), Color(red: 0.06, green: 0.05, blue: 0.15), Color(red: 0.05, green: 0.05, blue: 0.13)
+        Color(red: 0.08, green: 0.09, blue: 0.20), Color(red: 0.10, green: 0.10, blue: 0.24), Color(red: 0.09, green: 0.09, blue: 0.22),
+        Color(red: 0.09, green: 0.09, blue: 0.22), Color(red: 0.11, green: 0.11, blue: 0.26), Color(red: 0.10, green: 0.10, blue: 0.24),
+        Color(red: 0.08, green: 0.08, blue: 0.20), Color(red: 0.10, green: 0.09, blue: 0.24), Color(red: 0.09, green: 0.09, blue: 0.22)
     ]
     
     // MARK: - Temperature Shift

@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Theme Protocol
 
@@ -16,6 +19,14 @@ protocol Theme {
     var radius: RadiusTokens { get }
     var motion: MotionTokens { get }
     var gradients: [GradientPreset] { get }
+    
+    func clockFont(at size: CGFloat) -> Font
+}
+
+extension Theme {
+    func clockFont(at size: CGFloat) -> Font {
+        .system(size: size, weight: typography.clockWeight, design: .default)
+    }
 }
 
 // MARK: - Color Tokens
@@ -90,6 +101,16 @@ struct GradientPreset: Identifiable {
     /// 9 colors for a 3x3 MeshGradient, ordered row-major: top-left to bottom-right
     let meshColors: [Color]
     
+    var isDark: Bool {
+        let total = meshColors.reduce((r: 0.0, g: 0.0, b: 0.0)) { acc, color in
+            let c = color.rgbComponents
+            return (acc.r + c.r, acc.g + c.g, acc.b + c.b)
+        }
+        let n = Double(meshColors.count)
+        let luminance = 0.299 * (total.r / n) + 0.587 * (total.g / n) + 0.114 * (total.b / n)
+        return luminance < 0.45
+    }
+    
     static let meshPoints: [SIMD2<Float>] = [
         .init(x: 0, y: 0),   .init(x: 0.5, y: 0),   .init(x: 1, y: 0),
         .init(x: 0, y: 0.5), .init(x: 0.5, y: 0.5), .init(x: 1, y: 0.5),
@@ -97,9 +118,9 @@ struct GradientPreset: Identifiable {
     ]
 }
 
-// MARK: - Default Theme
+// MARK: - Organic Theme
 
-struct DefaultTheme: Theme {
+struct OrganicTheme: Theme {
     let colors = ColorTokens(
         background: Color(red: 0.92, green: 0.90, blue: 0.87), // Beige background
         foreground: .black,
@@ -220,16 +241,237 @@ struct DefaultTheme: Theme {
     ]
 }
 
+// MARK: - Basic Theme
+
+struct BasicTheme: Theme {
+    let colors = ColorTokens(
+        background: .white,
+        foreground: .black,
+        accent: Color(red: 0.0, green: 0.48, blue: 1.0),
+        secondaryForeground: Color(white: 0.45),
+        focusRing: Color(red: 0.0, green: 0.48, blue: 1.0),
+        cardBackground: Color(white: 0.97, opacity: 0.95),
+        cardBorder: Color(white: 0.88),
+        sidebarOverlay: Color.black.opacity(0.3),
+        sidebarBlur: Color(white: 0.97, opacity: 0.98)
+    )
+
+    let typography = TypographyTokens(
+        clockSize: 220,
+        clockWeight: .black,
+        standardSize: 24,
+        weight: .semibold
+    )
+
+    let spacing = SpacingTokens(
+        tiny: 8, small: 16, medium: 24, large: 32, extraLarge: 48,
+        edgeInset: 60, cornerPadding: 16
+    )
+
+    let radius = RadiusTokens(small: 8, medium: 16, large: 24, appIcon: 18)
+
+    let motion = MotionTokens(
+        focusScale: 1.08, focusDuration: 0.2,
+        transitionDuration: 0.35, newsFlipDuration: 0.8,
+        gradientAnimationDuration: 20.0
+    )
+
+    let gradients: [GradientPreset] = []
+}
+
+// MARK: - Elegant Theme
+
+struct ElegantTheme: Theme {
+    let colors = ColorTokens(
+        background: Color(red: 0.97, green: 0.95, blue: 0.91),
+        foreground: Color(red: 0.14, green: 0.11, blue: 0.08),
+        accent: Color(red: 0.72, green: 0.54, blue: 0.28),
+        secondaryForeground: Color(red: 0.50, green: 0.44, blue: 0.36),
+        focusRing: Color(red: 0.72, green: 0.54, blue: 0.28),
+        cardBackground: Color(red: 0.99, green: 0.98, blue: 0.96, opacity: 0.92),
+        cardBorder: Color(red: 0.82, green: 0.78, blue: 0.70),
+        sidebarOverlay: Color.black.opacity(0.2),
+        sidebarBlur: Color(red: 0.98, green: 0.96, blue: 0.93, opacity: 0.98)
+    )
+
+    let typography = TypographyTokens(
+        clockSize: 220,
+        clockWeight: .ultraLight,
+        standardSize: 24,
+        weight: .light
+    )
+
+    let spacing = SpacingTokens(
+        tiny: 8, small: 16, medium: 24, large: 32, extraLarge: 48,
+        edgeInset: 60, cornerPadding: 16
+    )
+
+    let radius = RadiusTokens(small: 8, medium: 16, large: 24, appIcon: 18)
+
+    let motion = MotionTokens(
+        focusScale: 1.05, focusDuration: 0.2,
+        transitionDuration: 0.35, newsFlipDuration: 0.8,
+        gradientAnimationDuration: 20.0
+    )
+
+    let gradients: [GradientPreset] = []
+}
+
+// MARK: - Signal Theme (legacy)
+
+struct SignalTheme: Theme {
+    let colors = ColorTokens(
+        background: Color(red: 0.06, green: 0.06, blue: 0.06),
+        foreground: .white,
+        accent: Color(red: 1.0, green: 0.10, blue: 0.10),
+        secondaryForeground: Color(white: 0.6),
+        focusRing: Color(red: 1.0, green: 0.10, blue: 0.10),
+        cardBackground: Color(white: 0.12, opacity: 0.85),
+        cardBorder: Color(white: 0.28),
+        sidebarOverlay: Color.black.opacity(0.6),
+        sidebarBlur: Color(white: 0.08, opacity: 0.98)
+    )
+    
+    let typography = TypographyTokens(
+        clockSize: 220,
+        clockWeight: .black,
+        standardSize: 24,
+        weight: .semibold
+    )
+    
+    let spacing = SpacingTokens(
+        tiny: 8,
+        small: 16,
+        medium: 24,
+        large: 32,
+        extraLarge: 48,
+        edgeInset: 60,
+        cornerPadding: 16
+    )
+    
+    let radius = RadiusTokens(
+        small: 8,
+        medium: 16,
+        large: 24,
+        appIcon: 18
+    )
+    
+    let motion = MotionTokens(
+        focusScale: 1.08,
+        focusDuration: 0.2,
+        transitionDuration: 0.35,
+        newsFlipDuration: 0.8,
+        gradientAnimationDuration: 20.0
+    )
+    
+    let gradients: [GradientPreset] = [
+        GradientPreset(
+            id: "noir",
+            name: "Noir",
+            meshColors: Array(repeating: Color(red: 0.06, green: 0.06, blue: 0.06), count: 9)
+        ),
+        GradientPreset(
+            id: "crimson",
+            name: "Crimson",
+            meshColors: Array(repeating: Color(red: 0.96, green: 0.07, blue: 0.07), count: 9)
+        ),
+        GradientPreset(
+            id: "graphite",
+            name: "Graphite",
+            meshColors: Array(repeating: Color(red: 0.16, green: 0.16, blue: 0.18), count: 9)
+        ),
+        GradientPreset(
+            id: "ink",
+            name: "Ink",
+            meshColors: Array(repeating: Color(red: 0.07, green: 0.07, blue: 0.14), count: 9)
+        ),
+        GradientPreset(
+            id: "ember",
+            name: "Ember",
+            meshColors: [
+                Color(red: 0.72, green: 0.03, blue: 0.03), Color(red: 0.82, green: 0.04, blue: 0.04), Color(red: 0.72, green: 0.03, blue: 0.03),
+                Color(red: 0.88, green: 0.05, blue: 0.05), Color(red: 0.96, green: 0.07, blue: 0.06), Color(red: 0.88, green: 0.05, blue: 0.05),
+                Color(red: 0.60, green: 0.02, blue: 0.02), Color(red: 0.72, green: 0.03, blue: 0.03), Color(red: 0.60, green: 0.02, blue: 0.02)
+            ]
+        ),
+        GradientPreset(
+            id: "ivory",
+            name: "Ivory",
+            meshColors: Array(repeating: Color(red: 0.97, green: 0.95, blue: 0.91), count: 9)
+        ),
+        GradientPreset(
+            id: "chalk",
+            name: "Chalk",
+            meshColors: Array(repeating: Color(red: 0.95, green: 0.95, blue: 0.96), count: 9)
+        ),
+        GradientPreset(
+            id: "dusk",
+            name: "Dusk",
+            meshColors: [
+                Color(red: 0.06, green: 0.08, blue: 0.20), Color(red: 0.08, green: 0.10, blue: 0.24), Color(red: 0.06, green: 0.08, blue: 0.20),
+                Color(red: 0.09, green: 0.12, blue: 0.28), Color(red: 0.10, green: 0.14, blue: 0.30), Color(red: 0.09, green: 0.12, blue: 0.28),
+                Color(red: 0.05, green: 0.06, blue: 0.14), Color(red: 0.06, green: 0.08, blue: 0.18), Color(red: 0.05, green: 0.06, blue: 0.14)
+            ]
+        )
+    ]
+    
+    func clockFont(at size: CGFloat) -> Font {
+        #if canImport(UIKit)
+        let baseFont = UIFont.systemFont(ofSize: size, weight: .black)
+        if let condensed = baseFont.fontDescriptor.withSymbolicTraits(.traitCondensed) {
+            return Font(UIFont(descriptor: condensed, size: size))
+        }
+        #endif
+        return .system(size: size, weight: .black, design: .default)
+    }
+}
+
 // MARK: - Theme Environment
 
 struct ThemeKey: EnvironmentKey {
-    static let defaultValue: Theme = DefaultTheme()
+    static let defaultValue: Theme = OrganicTheme()
+}
+
+struct AdaptiveForegroundKey: EnvironmentKey {
+    static let defaultValue: Color = .black
+}
+
+struct AdaptiveSecondaryForegroundKey: EnvironmentKey {
+    static let defaultValue: Color = Color(white: 0.4)
+}
+
+struct AdaptiveCardBackgroundKey: EnvironmentKey {
+    static let defaultValue: Color = Color(white: 0.98, opacity: 0.95)
+}
+
+struct AdaptiveCardBorderKey: EnvironmentKey {
+    static let defaultValue: Color = Color(white: 0.85)
 }
 
 extension EnvironmentValues {
     var theme: Theme {
         get { self[ThemeKey.self] }
         set { self[ThemeKey.self] = newValue }
+    }
+    
+    var adaptiveForeground: Color {
+        get { self[AdaptiveForegroundKey.self] }
+        set { self[AdaptiveForegroundKey.self] = newValue }
+    }
+    
+    var adaptiveSecondaryForeground: Color {
+        get { self[AdaptiveSecondaryForegroundKey.self] }
+        set { self[AdaptiveSecondaryForegroundKey.self] = newValue }
+    }
+    
+    var adaptiveCardBackground: Color {
+        get { self[AdaptiveCardBackgroundKey.self] }
+        set { self[AdaptiveCardBackgroundKey.self] = newValue }
+    }
+    
+    var adaptiveCardBorder: Color {
+        get { self[AdaptiveCardBorderKey.self] }
+        set { self[AdaptiveCardBorderKey.self] = newValue }
     }
 }
 

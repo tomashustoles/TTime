@@ -10,23 +10,36 @@ import SwiftUI
 struct MarketView: View {
     @Environment(\.theme) private var theme
     @Environment(\.isFocused) private var isFocused
-    
+    @Environment(\.adaptiveForeground) private var foreground
+
     let marketService: MarketServiceProtocol
-    
+    let enabledTickers: Set<String>
+
     @State private var marketData: [MarketData] = []
     @State private var isLoading = true
-    
+
+    /// Symbols whose ticker IDs are currently enabled in settings.
+    private var enabledSymbols: Set<String> {
+        Set(MarketTicker.availableTickers
+            .filter { enabledTickers.contains($0.id) }
+            .map { $0.symbol })
+    }
+
+    private var visibleData: [MarketData] {
+        marketData.filter { enabledSymbols.contains($0.symbol) }
+    }
+
     var body: some View {
         Group {
-            if !marketData.isEmpty {
+            if !visibleData.isEmpty {
                 VStack(alignment: .trailing, spacing: theme.spacing.medium) {
-                    ForEach(marketData) { data in
+                    ForEach(visibleData) { data in
                         MarketItemView(data: data, isFocused: isFocused)
                     }
                 }
             } else if isLoading {
                 ProgressView()
-                    .tint(theme.colors.foreground)
+                    .tint(foreground)
             }
         }
         .background {
@@ -38,8 +51,11 @@ struct MarketView: View {
         .task {
             await loadMarketData()
         }
+        .onChange(of: enabledTickers) { _, _ in
+            // visibleData recomputes automatically from the stored marketData
+        }
     }
-    
+
     private func loadMarketData() async {
         do {
             marketData = try await marketService.getMarketSnapshot()
@@ -52,6 +68,8 @@ struct MarketView: View {
 
 struct MarketItemView: View {
     @Environment(\.theme) private var theme
+    @Environment(\.adaptiveForeground) private var foreground
+    @Environment(\.adaptiveSecondaryForeground) private var secondaryForeground
     
     let data: MarketData
     let isFocused: Bool
@@ -64,7 +82,7 @@ struct MarketItemView: View {
                     weight: theme.typography.weight,
                     design: .default
                 ))
-                .foregroundStyle(theme.colors.secondaryForeground)
+                .foregroundStyle(secondaryForeground)
             
             HStack(alignment: .firstTextBaseline, spacing: theme.spacing.tiny) {
                 Text(formattedPrice(data.price))
@@ -73,7 +91,7 @@ struct MarketItemView: View {
                         weight: theme.typography.weight,
                         design: .default
                     ))
-                    .foregroundStyle(isFocused ? theme.colors.accent : theme.colors.foreground)
+                    .foregroundStyle(isFocused ? theme.colors.accent : foreground)
                 
                 Text(formattedChange(data.changePercent))
                     .font(.system(

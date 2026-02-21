@@ -10,6 +10,8 @@ import SwiftUI
 struct NewsView: View {
     @Environment(\.theme) private var theme
     @Environment(\.isFocused) private var isFocused
+    @Environment(\.adaptiveForeground) private var foreground
+    @Environment(\.adaptiveSecondaryForeground) private var secondaryForeground
     
     let newsService: NewsServiceProtocol
     
@@ -31,7 +33,7 @@ struct NewsView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .foregroundStyle(foreground)
                     
                     Text(headlines[currentIndex].title)
                         .font(.system(
@@ -39,7 +41,7 @@ struct NewsView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(isFocused ? theme.colors.accent : theme.colors.foreground)
+                        .foregroundStyle(isFocused ? theme.colors.accent : foreground)
                         .multilineTextAlignment(.leading)
                         .id(currentIndex)
                         .transition(.asymmetric(
@@ -50,7 +52,7 @@ struct NewsView: View {
                 .frame(maxWidth: 400, alignment: .leading)
             } else if isLoading {
                 ProgressView()
-                    .tint(theme.colors.foreground)
+                    .tint(foreground)
             } else if let errorMessage = errorMessage {
                 VStack(alignment: .leading, spacing: theme.spacing.tiny) {
                     Text("News")
@@ -59,7 +61,7 @@ struct NewsView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .foregroundStyle(secondaryForeground)
                     
                     Text("Error: \(errorMessage)")
                         .font(.system(
@@ -67,7 +69,7 @@ struct NewsView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.foreground)
+                        .foregroundStyle(foreground)
                 }
                 .frame(maxWidth: 400, alignment: .leading)
             }

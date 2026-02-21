@@ -8,13 +8,73 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Theme Style
+
+enum ThemeStyle: String, CaseIterable, Identifiable {
+    case organic = "Organic"
+    case basic = "Basic"
+    case elegant = "Elegant"
+
+    var id: String { rawValue }
+
+    var theme: Theme {
+        switch self {
+        case .organic:  return OrganicTheme()
+        case .basic:    return BasicTheme()
+        case .elegant:  return ElegantTheme()
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .organic:  return "Living gradient"
+        case .basic:    return "Clean & minimal"
+        case .elegant:  return "Refined serif"
+        }
+    }
+
+    var previewBackground: Color {
+        switch self {
+        case .organic:  return Color(red: 0.22, green: 0.28, blue: 0.48)
+        case .basic:    return Color(white: 0.97)
+        case .elegant:  return Color(red: 0.97, green: 0.95, blue: 0.91)
+        }
+    }
+
+    var previewForeground: Color {
+        switch self {
+        case .organic:  return .white
+        case .basic:    return .black
+        case .elegant:  return Color(red: 0.18, green: 0.14, blue: 0.10)
+        }
+    }
+
+    var previewAccent: Color {
+        switch self {
+        case .organic:  return Color(red: 1.0, green: 0.38, blue: 0.18)
+        case .basic:    return Color(red: 0.0, green: 0.48, blue: 1.0)
+        case .elegant:  return Color(red: 0.72, green: 0.54, blue: 0.28)
+        }
+    }
+}
+
 // MARK: - Appearance Mode
 
 enum AppearanceMode: String, CaseIterable, Identifiable {
-    case light = "Light"
-    case dark = "Dark"
-    
+    case light  = "Light"
+    case dark   = "Dark"
+    case system = "Auto"
+
     var id: String { rawValue }
+
+    /// Returns the SwiftUI ColorScheme to enforce, or nil to follow the device.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .light:  return .light
+        case .dark:   return .dark
+        case .system: return nil
+        }
+    }
 }
 
 // MARK: - Background Type
@@ -80,14 +140,19 @@ enum ClockFontStyle: String, CaseIterable, Identifiable {
 
 enum WeatherLocation: String, CaseIterable, Identifiable {
     case current = "Current Location"
-    case berlin = "Berlin"
+    case berlin  = "Berlin"
     case newYork = "New York City"
-    case tokyo = "Tokyo"
-    case london = "London"
-    case paris = "Paris"
-    case sydney = "Sydney"
-    
+    case tokyo   = "Tokyo"
+    case london  = "London"
+    case paris   = "Paris"
+    case sydney  = "Sydney"
+
     var id: String { rawValue }
+
+    /// Short display name shown in the picker row.
+    var displayName: String {
+        self == .current ? "Current" : rawValue
+    }
 }
 
 // MARK: - News Category

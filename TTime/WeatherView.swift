@@ -10,9 +10,12 @@ import SwiftUI
 struct WeatherView: View {
     @Environment(\.theme) private var theme
     @Environment(\.isFocused) private var isFocused
+    @Environment(\.adaptiveForeground) private var foreground
+    @Environment(\.adaptiveSecondaryForeground) private var secondaryForeground
     
     let weatherService: WeatherServiceProtocol
     let temperatureUnit: TemperatureUnit
+    let showLocation: Bool
     
     @State private var weatherData: WeatherData?
     @State private var isLoading = true
@@ -22,32 +25,31 @@ struct WeatherView: View {
         Group {
             if let weather = weatherData {
                 VStack(alignment: .trailing, spacing: 4) {
-                    // Temperature
                     Text(formattedTemperature(weather.temperature))
                         .font(.system(
                             size: theme.typography.standardSize,
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.foreground)
+                        .foregroundStyle(foreground)
                     
-                    // Condition
                     Text(weather.condition)
                         .font(.system(
                             size: theme.typography.standardSize,
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
-                    
-                    // Location
-                    Text(weather.location)
-                        .font(.system(
-                            size: theme.typography.standardSize,
-                            weight: theme.typography.weight,
-                            design: .default
-                        ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .foregroundStyle(foreground)
+
+                    if showLocation {
+                        Text(weather.location)
+                            .font(.system(
+                                size: theme.typography.standardSize,
+                                weight: theme.typography.weight,
+                                design: .default
+                            ))
+                            .foregroundStyle(foreground)
+                    }
                 }
             } else if isLoading {
                 VStack(alignment: .trailing, spacing: 4) {
@@ -57,7 +59,7 @@ struct WeatherView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.foreground)
+                        .foregroundStyle(foreground)
                     
                     Text("Loading...")
                         .font(.system(
@@ -65,7 +67,7 @@ struct WeatherView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .foregroundStyle(secondaryForeground)
                 }
             } else if let error = errorMessage {
                 VStack(alignment: .trailing, spacing: 4) {
@@ -75,7 +77,7 @@ struct WeatherView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.foreground)
+                        .foregroundStyle(foreground)
                     
                     Text(error)
                         .font(.system(
@@ -83,7 +85,7 @@ struct WeatherView: View {
                             weight: theme.typography.weight,
                             design: .default
                         ))
-                        .foregroundStyle(theme.colors.secondaryForeground)
+                        .foregroundStyle(secondaryForeground)
                 }
             }
         }
