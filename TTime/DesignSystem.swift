@@ -50,12 +50,12 @@ struct ColorTokens {
 struct TypographyTokens {
     // Huge size for the clock
     let clockSize: CGFloat
-    let clockWeight: Font.Weight  // Separate weight for clock
+    let clockWeight: Font.Weight
+    /// Multiplied by clockSize to produce the `.tracking` value — negative tightens letters.
+    let clockTracking: CGFloat
     
     // Standard size for everything else
     let standardSize: CGFloat
-    
-    // Semibold weight for everything except clock
     let weight: Font.Weight
 }
 
@@ -134,10 +134,11 @@ struct OrganicTheme: Theme {
     )
     
     let typography = TypographyTokens(
-        clockSize: 220,        // Huge size for clock
-        clockWeight: .black,   // Original bold weight for clock
-        standardSize: 24,      // Standard size for everything else
-        weight: .semibold      // Semibold for everything else
+        clockSize: 220,
+        clockWeight: .bold,
+        clockTracking: -0.04,
+        standardSize: 24,
+        weight: .semibold
     )
     
     let spacing = SpacingTokens(
@@ -259,6 +260,7 @@ struct BasicTheme: Theme {
     let typography = TypographyTokens(
         clockSize: 220,
         clockWeight: .black,
+        clockTracking: -0.04,
         standardSize: 24,
         weight: .semibold
     )
@@ -297,6 +299,7 @@ struct ElegantTheme: Theme {
     let typography = TypographyTokens(
         clockSize: 220,
         clockWeight: .ultraLight,
+        clockTracking: -0.04,
         standardSize: 24,
         weight: .light
     )
@@ -335,6 +338,7 @@ struct SignalTheme: Theme {
     let typography = TypographyTokens(
         clockSize: 220,
         clockWeight: .black,
+        clockTracking: -0.04,
         standardSize: 24,
         weight: .semibold
     )

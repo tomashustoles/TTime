@@ -25,7 +25,8 @@ struct ClockView: View {
                     .font(theme.clockFont(at: theme.typography.clockSize))
                     .foregroundStyle(foreground)
                     .monospacedDigit()
-                    .tracking(theme.typography.clockSize * -0.04)
+                    .tracking(theme.typography.clockSize * theme.typography.clockTracking)
+                    .fixedSize()
                     .shadow(color: shadowColor, radius: 6, x: 0, y: 2)
 
                 Text(":")
@@ -39,7 +40,8 @@ struct ClockView: View {
                     .font(theme.clockFont(at: theme.typography.clockSize))
                     .foregroundStyle(foreground)
                     .monospacedDigit()
-                    .tracking(theme.typography.clockSize * -0.04)
+                    .tracking(theme.typography.clockSize * theme.typography.clockTracking)
+                    .fixedSize()
                     .shadow(color: shadowColor, radius: 6, x: 0, y: 2)
             }
         }

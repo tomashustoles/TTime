@@ -104,7 +104,7 @@ enum TimeFormat: String, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .twelveHour:
-            return "12-hour (AM/PM)"
+            return "12-hour"
         case .twentyFourHour:
             return "24-hour"
         }

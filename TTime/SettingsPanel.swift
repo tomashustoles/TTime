@@ -40,14 +40,7 @@ struct SettingsPanel: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
 
-                    // LazyVGrid guarantees equal-width, stable layout — no shift on selection
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), spacing: 10),
-                            count: ThemeStyle.allCases.count
-                        ),
-                        spacing: 0
-                    ) {
+                    HStack(spacing: 10) {
                         ForEach(ThemeStyle.allCases) { style in
                             ThemeStyleCard(
                                 style: style,
@@ -57,6 +50,7 @@ struct SettingsPanel: View {
                                     appState.themeStyle = style
                                 }
                             }
+                            .frame(maxWidth: .infinity)
                         }
                     }
 
@@ -96,13 +90,8 @@ struct SettingsPanel: View {
                                     }
                                 }
                             )) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(ticker.symbol)
-                                        .font(.system(.body, design: .monospaced).bold())
-                                    Text(ticker.displayName)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
+                                Text(ticker.symbol)
+                                    .font(.system(.body, design: .monospaced).bold())
                             }
                         }
                     } header: {
@@ -116,12 +105,14 @@ struct SettingsPanel: View {
                                 Text(format.displayName).tag(format)
                             }
                         }
+                        .pickerStyle(.navigationLink)
 
                         Picker("Weather", selection: $appState.temperatureUnit) {
                             ForEach(TemperatureUnit.allCases) { unit in
                                 Text(unit.symbol).tag(unit)
                             }
                         }
+                        .pickerStyle(.navigationLink)
 
                         Toggle("Show Location", isOn: $appState.showWeatherLocation)
 
@@ -130,18 +121,20 @@ struct SettingsPanel: View {
                                 Text(location.displayName).tag(location)
                             }
                         }
+                        .pickerStyle(.navigationLink)
                     } header: {
                         Text("Time & Weather")
                     }
                 }
                 .formStyle(.grouped)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 12)
                 #if !os(tvOS)
                 .scrollContentBackground(.hidden)
-                .scrollClipDisabled()
                 #endif
+                .scrollClipDisabled()
             }
             .frame(width: 480)
+            .clipShape(RoundedRectangle(cornerRadius: 32))
             .background {
                 RoundedRectangle(cornerRadius: 32)
                     .fill(.ultraThinMaterial)

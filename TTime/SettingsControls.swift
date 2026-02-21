@@ -63,17 +63,9 @@ struct ThemeStyleCard: View {
                     }
                 }
 
-                // Name + description
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(style.rawValue)
-                        .font(.caption.weight(isSelected ? .semibold : .medium))
-                        .foregroundStyle(isSelected ? theme.colors.accent : .primary)
-
-                    Text(style.description)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                Text(style.rawValue)
+                    .font(.caption.weight(isSelected ? .semibold : .medium))
+                    .foregroundStyle(isSelected ? theme.colors.accent : .primary)
             }
         }
         .buttonStyle(.plain)

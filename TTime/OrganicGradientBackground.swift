@@ -12,7 +12,7 @@ struct OrganicGradientBackground: View {
     var forcedHour: Double? = nil
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0)) { timeline in
+        TimelineView(.animation) { timeline in
             let now = timeline.date
             let calendar = Calendar.current
             let hour = Double(calendar.component(.hour, from: now))
@@ -20,41 +20,86 @@ struct OrganicGradientBackground: View {
             let month = calendar.component(.month, from: now)
             let fractionalHour = forcedHour ?? (hour + minute / 60.0)
             let time = now.timeIntervalSinceReferenceDate
-            
+
             let baseColors = Self.timeOfDayColors(fractionalHour: fractionalHour)
             let tempShifted = Self.applyTemperatureShift(colors: baseColors, temperature: temperature)
-            let seasonTinted = Self.applySeasonTint(colors: tempShifted, month: month)
-            
-            MeshGradient(
-                width: 3,
-                height: 3,
-                points: Self.animatedPoints(time: time),
-                colors: seasonTinted
-            )
+            let finalColors = Self.applySeasonTint(colors: tempShifted, month: month)
+
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+
+                ZStack {
+                    finalColors[4]
+
+                    ForEach(0..<5, id: \.self) { i in
+                        let blob = Self.blobs[i]
+                        let x = (blob.baseX + sin(time / blob.xPeriod) * blob.xAmplitude) * w
+                        let y = (blob.baseY + cos(time / blob.yPeriod) * blob.yAmplitude) * h
+
+                        Ellipse()
+                            .fill(finalColors[blob.paletteIndex])
+                            .frame(width: w * blob.widthRatio, height: h * blob.heightRatio)
+                            .blur(radius: blob.blurRadius)
+                            .opacity(blob.opacity)
+                            .position(x: x, y: y)
+                    }
+                }
+                .drawingGroup()
+            }
             .ignoresSafeArea()
         }
     }
-    
-    // MARK: - Animated Mesh Points
-    
-    static func animatedPoints(time: Double) -> [SIMD2<Float>] {
-        [
-            .init(x: 0, y: 0),
-            .init(x: 0.5 + Float(sin(time / 25)) * 0.06, y: Float(sin(time / 30)) * 0.04),
-            .init(x: 1, y: 0),
-            
-            .init(x: Float(cos(time / 28)) * 0.05, y: 0.5 + Float(cos(time / 22)) * 0.06),
-            .init(x: 0.5 + Float(sin(time / 20)) * 0.04, y: 0.5 + Float(cos(time / 24)) * 0.04),
-            .init(x: 1 + Float(sin(time / 26)) * 0.04, y: 0.5 + Float(sin(time / 18)) * 0.05),
-            
-            .init(x: 0, y: 1),
-            .init(x: 0.5 + Float(cos(time / 23)) * 0.05, y: 1),
-            .init(x: 1, y: 1)
-        ]
+
+    // MARK: - Blob Configuration
+
+    private struct BlobConfig {
+        let paletteIndex: Int
+        let baseX: Double
+        let baseY: Double
+        let widthRatio: Double
+        let heightRatio: Double
+        let xPeriod: Double
+        let yPeriod: Double
+        let xAmplitude: Double
+        let yAmplitude: Double
+        let blurRadius: Double
+        let opacity: Double
     }
-    
+
+    /// Five blobs sampled from the 9-color palette at the four corners and center.
+    /// Each drifts slowly on sine/cosine curves with prime-ish periods so the
+    /// overall pattern doesn't visibly repeat.
+    private static let blobs: [BlobConfig] = [
+        BlobConfig(paletteIndex: 0, baseX: 0.20, baseY: 0.20,
+                   widthRatio: 0.75, heightRatio: 0.65,
+                   xPeriod: 41, yPeriod: 53,
+                   xAmplitude: 0.15, yAmplitude: 0.12,
+                   blurRadius: 120, opacity: 0.90),
+        BlobConfig(paletteIndex: 2, baseX: 0.80, baseY: 0.25,
+                   widthRatio: 0.65, heightRatio: 0.75,
+                   xPeriod: 59, yPeriod: 43,
+                   xAmplitude: 0.12, yAmplitude: 0.15,
+                   blurRadius: 130, opacity: 0.85),
+        BlobConfig(paletteIndex: 4, baseX: 0.50, baseY: 0.50,
+                   widthRatio: 0.85, heightRatio: 0.85,
+                   xPeriod: 67, yPeriod: 71,
+                   xAmplitude: 0.10, yAmplitude: 0.10,
+                   blurRadius: 140, opacity: 0.80),
+        BlobConfig(paletteIndex: 6, baseX: 0.25, baseY: 0.80,
+                   widthRatio: 0.70, heightRatio: 0.65,
+                   xPeriod: 47, yPeriod: 61,
+                   xAmplitude: 0.13, yAmplitude: 0.12,
+                   blurRadius: 120, opacity: 0.85),
+        BlobConfig(paletteIndex: 8, baseX: 0.75, baseY: 0.75,
+                   widthRatio: 0.65, heightRatio: 0.70,
+                   xPeriod: 53, yPeriod: 37,
+                   xAmplitude: 0.12, yAmplitude: 0.13,
+                   blurRadius: 125, opacity: 0.90),
+    ]
+
     // MARK: - Time of Day Palettes
-    
+
     static func timeOfDayColors(fractionalHour: Double) -> [Color] {
         let palettes: [(hour: Double, colors: [Color])] = [
             (0, nightColors),
@@ -68,7 +113,7 @@ struct OrganicGradientBackground: View {
             (22, nightColors),
             (24, nightColors)
         ]
-        
+
         var lower = palettes[0]
         var upper = palettes[1]
         for i in 0..<(palettes.count - 1) {
@@ -78,16 +123,15 @@ struct OrganicGradientBackground: View {
                 break
             }
         }
-        
+
         let range = upper.hour - lower.hour
         let t = range > 0 ? (fractionalHour - lower.hour) / range : 0
         let smoothT = smoothstep(t)
-        
+
         return zip(lower.colors, upper.colors).map { lerpColor($0, $1, t: smoothT) }
     }
-    
-    // MARK: - Base Palettes (9 colors each for 3x3 mesh)
-    // Calm, desaturated, beautiful — like fine watercolour washes
+
+    // MARK: - Base Palettes (9 colors each)
 
     private static let dawnColors: [Color] = [
         Color(red: 0.76, green: 0.66, blue: 0.74), Color(red: 0.88, green: 0.72, blue: 0.68), Color(red: 0.94, green: 0.80, blue: 0.66),
@@ -130,12 +174,12 @@ struct OrganicGradientBackground: View {
         Color(red: 0.09, green: 0.09, blue: 0.22), Color(red: 0.11, green: 0.11, blue: 0.26), Color(red: 0.10, green: 0.10, blue: 0.24),
         Color(red: 0.08, green: 0.08, blue: 0.20), Color(red: 0.10, green: 0.09, blue: 0.24), Color(red: 0.09, green: 0.09, blue: 0.22)
     ]
-    
+
     // MARK: - Temperature Shift
-    
+
     static func applyTemperatureShift(colors: [Color], temperature: Double?) -> [Color] {
         guard let temp = temperature else { return colors }
-        
+
         let shift: (r: Double, g: Double, b: Double)
         switch temp {
         case ..<5:
@@ -153,7 +197,7 @@ struct OrganicGradientBackground: View {
             let intensity = min(1.0, (temp - 35) / 10.0)
             shift = (r: 0.12 * intensity, g: -0.02 * intensity, b: -0.08 * intensity)
         }
-        
+
         return colors.map { color in
             let comps = color.rgbComponents
             return Color(
@@ -163,9 +207,9 @@ struct OrganicGradientBackground: View {
             )
         }
     }
-    
+
     // MARK: - Season Tint
-    
+
     static func applySeasonTint(colors: [Color], month: Int) -> [Color] {
         let tint: (r: Double, g: Double, b: Double)
         switch month {
@@ -180,7 +224,7 @@ struct OrganicGradientBackground: View {
         default:
             tint = (r: 0, g: 0, b: 0)
         }
-        
+
         return colors.map { color in
             let comps = color.rgbComponents
             return Color(
@@ -190,14 +234,14 @@ struct OrganicGradientBackground: View {
             )
         }
     }
-    
+
     // MARK: - Helpers
-    
+
     private static func smoothstep(_ t: Double) -> Double {
         let clamped = max(0, min(1, t))
         return clamped * clamped * (3 - 2 * clamped)
     }
-    
+
     private static func lerpColor(_ a: Color, _ b: Color, t: Double) -> Color {
         let ca = a.rgbComponents
         let cb = b.rgbComponents
@@ -207,7 +251,7 @@ struct OrganicGradientBackground: View {
             blue: ca.b + (cb.b - ca.b) * t
         )
     }
-    
+
     private static func clamp01(_ value: Double) -> Double {
         max(0, min(1, value))
     }

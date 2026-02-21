@@ -94,17 +94,6 @@ struct ContentView: View {
                         }
                     }
 
-                VStack {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20))
-                            .foregroundStyle(adaptiveSecondaryForeground.opacity(0.3))
-                            .padding(theme.spacing.cornerPadding)
-                    }
-                    Spacer()
-                }
-
                 ClockView(timezone: appState.selectedTimezone, timeFormat: appState.timeFormat)
 
                 VStack {
