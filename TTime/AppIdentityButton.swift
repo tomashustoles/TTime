@@ -44,7 +44,7 @@ struct AppIdentityButton: View {
             .padding(theme.spacing.small)
             .background {
                 RoundedRectangle(cornerRadius: theme.radius.medium)
-                    .fill(theme.colors.background.opacity(isFocused ? 0.3 : 0.0))
+                    .fill(foreground.opacity(isFocused ? 0.15 : 0.0))
             }
             .scaleEffect(isFocused ? theme.motion.focusScale : 1.0)
             .animation(.easeOut(duration: theme.motion.focusDuration), value: isFocused)

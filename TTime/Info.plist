@@ -4,6 +4,8 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TTime uses your location to show a map of your current area in the Map theme.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>TTime uses the local network to fetch weather, news, and market data.</string>
 	<key>NSAppTransportSecurity</key>

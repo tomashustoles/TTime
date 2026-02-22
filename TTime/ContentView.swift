@@ -20,7 +20,13 @@ struct ContentView: View {
         case .organic:
             let effectiveHour = organicForcedHour ?? Double(Calendar.current.component(.hour, from: Date()))
             return effectiveHour < 7 || effectiveHour >= 18
-        case .basic, .elegant:
+        case .clock:
+            switch appState.appearanceMode {
+            case .light:  return false
+            case .dark:   return true
+            case .system: return deviceColorScheme == .dark
+            }
+        case .basic, .elegant, .map:
             switch appState.appearanceMode {
             case .light:  return false
             case .dark:   return true
@@ -55,6 +61,30 @@ struct ContentView: View {
             isDarkBackground
                 ? Color(red: 0.07, green: 0.07, blue: 0.12)
                 : Color(red: 0.97, green: 0.95, blue: 0.91)
+        case .clock:
+            if isDarkBackground {
+                LinearGradient(
+                    colors: [
+                        Color(white: 0.25),
+                        Color(white: 0.14),
+                        Color(white: 0.09),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(white: 0.95),
+                        Color(white: 0.90),
+                        Color(white: 0.86),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        case .map:
+            MapBackgroundView(isDark: isDarkBackground)
         }
     }
 
@@ -94,7 +124,11 @@ struct ContentView: View {
                         }
                     }
 
-                ClockView(timezone: appState.selectedTimezone, timeFormat: appState.timeFormat)
+                if appState.themeStyle == .clock {
+                    AnalogClockView(timezone: appState.selectedTimezone, isDark: isDarkBackground)
+                } else {
+                    ClockView(timezone: appState.selectedTimezone, timeFormat: appState.timeFormat)
+                }
 
                 VStack {
                     HStack(alignment: .top) {
@@ -131,10 +165,12 @@ struct ContentView: View {
                     }
                 }
                 .padding(theme.spacing.cornerPadding)
-                .allowsHitTesting(false)
+                .allowsHitTesting(!appState.isSettingsPanelOpen)
+                .opacity(appState.isSettingsPanelOpen ? 0.45 : 1)
+                .animation(.easeInOut(duration: theme.motion.transitionDuration), value: appState.isSettingsPanelOpen)
 
                 if appState.isSettingsPanelOpen {
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(0.15)
                         .ignoresSafeArea()
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {

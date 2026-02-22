@@ -17,7 +17,7 @@ struct SettingsPanel: View {
         HStack(spacing: 0) {
             VStack(spacing: 0) {
 
-                // MARK: - Header
+                // MARK: - Header (stays fixed)
                 HStack {
                     Text("Settings")
                         .font(.title2.bold())
@@ -33,105 +33,115 @@ struct SettingsPanel: View {
                 .padding(.top, 20)
                 .padding(.bottom, 4)
 
-                // MARK: - Theme Section (outside Form to avoid row scaling on tvOS)
-                VStack(alignment: .leading, spacing: 14) {
+                // MARK: - Single scrollable area for all content
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
 
-                    Text("THEME")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        // MARK: Theme
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("THEME")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 4)
 
-                    HStack(spacing: 10) {
-                        ForEach(ThemeStyle.allCases) { style in
-                            ThemeStyleCard(
-                                style: style,
-                                isSelected: appState.themeStyle == style
-                            ) {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    appState.themeStyle = style
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                    }
-
-                    // Appearance
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Appearance")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-
-                        Picker("Appearance", selection: $appState.appearanceMode) {
-                            ForEach(AppearanceMode.allCases) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-
-                // MARK: - Form (Markets + Time & Weather only)
-                Form {
-
-                    // MARK: Markets
-                    Section {
-                        ForEach(
-                            MarketTicker.availableTickers.filter { $0.id == "btc-usd" || $0.id == "sp500" }
-                        ) { ticker in
-                            Toggle(isOn: Binding(
-                                get: { appState.enabledTickers.contains(ticker.id) },
-                                set: { enabled in
-                                    if enabled {
-                                        appState.enabledTickers.insert(ticker.id)
-                                    } else {
-                                        appState.enabledTickers.remove(ticker.id)
+                            ForEach(ThemeStyle.allCases) { style in
+                                ThemeStyleCard(
+                                    style: style,
+                                    isSelected: appState.themeStyle == style
+                                ) {
+                                    withAnimation(.easeOut(duration: 0.2)) {
+                                        appState.themeStyle = style
                                     }
                                 }
-                            )) {
-                                Text(ticker.symbol)
-                                    .font(.system(.body, design: .monospaced).bold())
                             }
                         }
-                    } header: {
-                        Text("Markets")
+
+                        // MARK: Appearance
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Appearance")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 4)
+
+                            Picker("Appearance", selection: $appState.appearanceMode) {
+                                ForEach(AppearanceMode.allCases) { mode in
+                                    Text(mode.rawValue).tag(mode)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+                        }
+
+                        // MARK: Markets
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("MARKETS")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 4)
+
+                            let tickers = MarketTicker.availableTickers
+                                .filter { $0.id == "btc-usd" || $0.id == "sp500" }
+                            ForEach(tickers) { ticker in
+                                HStack {
+                                    Text(ticker.symbol)
+                                        .font(.system(.body, design: .monospaced).bold())
+                                    Spacer()
+                                    Toggle("", isOn: Binding(
+                                        get: { appState.enabledTickers.contains(ticker.id) },
+                                        set: { enabled in
+                                            if enabled { appState.enabledTickers.insert(ticker.id) }
+                                            else { appState.enabledTickers.remove(ticker.id) }
+                                        }
+                                    ))
+                                    .labelsHidden()
+                                }
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                            }
+                        }
+
+                        // MARK: Time & Weather
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text("Time")
+                                Spacer()
+                                Picker("", selection: $appState.timeFormat) {
+                                    ForEach(TimeFormat.allCases) { format in
+                                        Text(format.displayName).tag(format)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .labelsHidden()
+                            }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+
+                            HStack {
+                                Text("Weather")
+                                Spacer()
+                                Picker("", selection: $appState.temperatureUnit) {
+                                    ForEach(TemperatureUnit.allCases) { unit in
+                                        Text(unit.symbol).tag(unit)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .labelsHidden()
+                            }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+
+                            HStack {
+                                Toggle("Show Location", isOn: $appState.showWeatherLocation)
+                            }
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
+                        }
                     }
-
-                    // MARK: Time & Weather
-                    Section {
-                        Picker("Time", selection: $appState.timeFormat) {
-                            ForEach(TimeFormat.allCases) { format in
-                                Text(format.displayName).tag(format)
-                            }
-                        }
-                        .pickerStyle(.navigationLink)
-
-                        Picker("Weather", selection: $appState.temperatureUnit) {
-                            ForEach(TemperatureUnit.allCases) { unit in
-                                Text(unit.symbol).tag(unit)
-                            }
-                        }
-                        .pickerStyle(.navigationLink)
-
-                        Toggle("Show Location", isOn: $appState.showWeatherLocation)
-
-                        Picker("Location", selection: $appState.weatherLocation) {
-                            ForEach(WeatherLocation.allCases) { location in
-                                Text(location.displayName).tag(location)
-                            }
-                        }
-                        .pickerStyle(.navigationLink)
-                    } header: {
-                        Text("Time & Weather")
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .padding(.bottom, 24)
                 }
-                .formStyle(.grouped)
-                .padding(.horizontal, 12)
-                #if !os(tvOS)
-                .scrollContentBackground(.hidden)
-                #endif
-                .scrollClipDisabled()
+                .scrollIndicators(.hidden)
             }
             .frame(width: 480)
             .clipShape(RoundedRectangle(cornerRadius: 32))

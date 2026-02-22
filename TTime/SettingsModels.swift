@@ -14,6 +14,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
     case organic = "Organic"
     case basic = "Basic"
     case elegant = "Elegant"
+    case clock = "Clock"
+    case map = "Map"
 
     var id: String { rawValue }
 
@@ -22,6 +24,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
         case .organic:  return OrganicTheme()
         case .basic:    return BasicTheme()
         case .elegant:  return ElegantTheme()
+        case .clock:    return ClockTheme()
+        case .map:      return MapTheme()
         }
     }
 
@@ -30,6 +34,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
         case .organic:  return "Living gradient"
         case .basic:    return "Clean & minimal"
         case .elegant:  return "Refined serif"
+        case .clock:    return "Liquid glass"
+        case .map:      return "Live map"
         }
     }
 
@@ -38,6 +44,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
         case .organic:  return Color(red: 0.22, green: 0.28, blue: 0.48)
         case .basic:    return Color(white: 0.97)
         case .elegant:  return Color(red: 0.97, green: 0.95, blue: 0.91)
+        case .clock:    return Color(white: 0.18)
+        case .map:      return Color(red: 0.91, green: 0.93, blue: 0.95)
         }
     }
 
@@ -46,6 +54,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
         case .organic:  return .white
         case .basic:    return .black
         case .elegant:  return Color(red: 0.18, green: 0.14, blue: 0.10)
+        case .clock:    return .white
+        case .map:      return Color(white: 0.35)
         }
     }
 
@@ -54,6 +64,8 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
         case .organic:  return Color(red: 1.0, green: 0.38, blue: 0.18)
         case .basic:    return Color(red: 0.0, green: 0.48, blue: 1.0)
         case .elegant:  return Color(red: 0.72, green: 0.54, blue: 0.28)
+        case .clock:    return Color(white: 0.65)
+        case .map:      return Color(red: 0.0, green: 0.48, blue: 1.0)
         }
     }
 }

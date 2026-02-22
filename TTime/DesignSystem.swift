@@ -320,6 +320,45 @@ struct ElegantTheme: Theme {
     let gradients: [GradientPreset] = []
 }
 
+// MARK: - Clock Theme
+
+struct ClockTheme: Theme {
+    let colors = ColorTokens(
+        background: Color(white: 0.15),
+        foreground: .white,
+        accent: Color(white: 0.75),
+        secondaryForeground: Color(white: 0.6),
+        focusRing: Color(white: 0.7),
+        cardBackground: Color(white: 0.12, opacity: 0.8),
+        cardBorder: Color(white: 0.3),
+        sidebarOverlay: Color.black.opacity(0.5),
+        sidebarBlur: Color(white: 0.1, opacity: 0.98)
+    )
+
+    let typography = TypographyTokens(
+        clockSize: 220,
+        clockWeight: .thin,
+        clockTracking: -0.04,
+        standardSize: 24,
+        weight: .medium
+    )
+
+    let spacing = SpacingTokens(
+        tiny: 8, small: 16, medium: 24, large: 32, extraLarge: 48,
+        edgeInset: 60, cornerPadding: 16
+    )
+
+    let radius = RadiusTokens(small: 8, medium: 16, large: 24, appIcon: 18)
+
+    let motion = MotionTokens(
+        focusScale: 1.06, focusDuration: 0.2,
+        transitionDuration: 0.35, newsFlipDuration: 0.8,
+        gradientAnimationDuration: 20.0
+    )
+
+    let gradients: [GradientPreset] = []
+}
+
 // MARK: - Signal Theme (legacy)
 
 struct SignalTheme: Theme {
@@ -428,6 +467,45 @@ struct SignalTheme: Theme {
         #endif
         return .system(size: size, weight: .black, design: .default)
     }
+}
+
+// MARK: - Map Theme
+
+struct MapTheme: Theme {
+    let colors = ColorTokens(
+        background: Color(white: 0.95),
+        foreground: .black,
+        accent: Color(red: 0.0, green: 0.48, blue: 1.0),
+        secondaryForeground: Color(white: 0.45),
+        focusRing: Color(red: 0.0, green: 0.48, blue: 1.0),
+        cardBackground: Color(white: 0.98, opacity: 0.92),
+        cardBorder: Color(white: 0.85),
+        sidebarOverlay: Color.black.opacity(0.3),
+        sidebarBlur: Color(white: 0.97, opacity: 0.98)
+    )
+
+    let typography = TypographyTokens(
+        clockSize: 220,
+        clockWeight: .semibold,
+        clockTracking: -0.04,
+        standardSize: 24,
+        weight: .semibold
+    )
+
+    let spacing = SpacingTokens(
+        tiny: 8, small: 16, medium: 24, large: 32, extraLarge: 48,
+        edgeInset: 60, cornerPadding: 16
+    )
+
+    let radius = RadiusTokens(small: 8, medium: 16, large: 24, appIcon: 18)
+
+    let motion = MotionTokens(
+        focusScale: 1.08, focusDuration: 0.2,
+        transitionDuration: 0.35, newsFlipDuration: 0.8,
+        gradientAnimationDuration: 20.0
+    )
+
+    let gradients: [GradientPreset] = []
 }
 
 // MARK: - Theme Environment
