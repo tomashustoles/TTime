@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "TTime-Wide-Middle.jpg",
+      "filename" : "TTime-Wide-Middle.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "TTime-Wide-Middle@2x.jpg",
+      "filename" : "TTime-Wide-Middle@2x.png",
       "idiom" : "tv",
       "scale" : "2x"
     }

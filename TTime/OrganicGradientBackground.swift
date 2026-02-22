@@ -175,6 +175,11 @@ struct OrganicGradientBackground: View {
         Color(red: 0.08, green: 0.08, blue: 0.20), Color(red: 0.10, green: 0.09, blue: 0.24), Color(red: 0.09, green: 0.09, blue: 0.22)
     ]
 
+    /// 9 colors for theme preview thumbnail (midday palette).
+    static let previewMiddayColors: [Color] = middayColors
+    /// 9 colors for theme preview thumbnail (night palette).
+    static let previewNightColors: [Color] = nightColors
+
     // MARK: - Temperature Shift
 
     static func applyTemperatureShift(colors: [Color], temperature: Double?) -> [Color] {

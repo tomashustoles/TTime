@@ -1,12 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "topshelf.png",
+      "filename" : "TTime-Topshelf 1.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "topshelf@2x.png",
       "idiom" : "tv",
       "scale" : "2x"
     }

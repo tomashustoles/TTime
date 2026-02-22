@@ -19,6 +19,14 @@ enum ThemeStyle: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// The next theme in the cycle ( Organic → Basic → Elegant → Clock → Map → Organic ).
+    var next: ThemeStyle {
+        let all = ThemeStyle.allCases
+        guard let idx = all.firstIndex(of: self) else { return .organic }
+        let nextIdx = (idx + 1) % all.count
+        return all[nextIdx]
+    }
+
     var theme: Theme {
         switch self {
         case .organic:  return OrganicTheme()

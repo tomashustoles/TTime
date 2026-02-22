@@ -7,9 +7,17 @@
 
 import SwiftUI
 
+enum DashboardFocusTarget: Hashable {
+    case appIdentity
+    case weather
+    case news
+    case market
+}
+
 struct ContentView: View {
     @Environment(\.theme) private var theme
     @Environment(\.colorScheme) private var deviceColorScheme
+    @FocusState private var focusedElement: DashboardFocusTarget?
     let appState: AppState
 
     // MARK: - Effective darkness
@@ -124,10 +132,18 @@ struct ContentView: View {
                         }
                     }
 
-                if appState.themeStyle == .clock {
-                    AnalogClockView(timezone: appState.selectedTimezone, isDark: isDarkBackground)
-                } else {
-                    ClockView(timezone: appState.selectedTimezone, timeFormat: appState.timeFormat)
+                Group {
+                    if appState.themeStyle == .clock {
+                        AnalogClockView(timezone: appState.selectedTimezone, isDark: isDarkBackground)
+                    } else {
+                        ClockView(timezone: appState.selectedTimezone, timeFormat: appState.timeFormat)
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        appState.themeStyle = appState.themeStyle.next
+                    }
                 }
 
                 VStack {
@@ -137,6 +153,7 @@ struct ContentView: View {
                                 appState.isSettingsPanelOpen.toggle()
                             }
                         }
+                        .focused($focusedElement, equals: .appIdentity)
                         .focusable()
 
                         Spacer()
@@ -146,6 +163,7 @@ struct ContentView: View {
                             temperatureUnit: appState.temperatureUnit,
                             showLocation: appState.showWeatherLocation
                         )
+                        .focused($focusedElement, equals: .weather)
                         .focusable()
                     }
 
@@ -153,6 +171,7 @@ struct ContentView: View {
 
                     HStack(alignment: .bottom) {
                         NewsView(newsService: appState.newsService)
+                            .focused($focusedElement, equals: .news)
                             .focusable()
 
                         Spacer()
@@ -161,6 +180,7 @@ struct ContentView: View {
                             marketService: appState.marketService,
                             enabledTickers: appState.enabledTickers
                         )
+                        .focused($focusedElement, equals: .market)
                         .focusable()
                     }
                 }
@@ -172,11 +192,24 @@ struct ContentView: View {
                 if appState.isSettingsPanelOpen {
                     Color.black.opacity(0.15)
                         .ignoresSafeArea()
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                                 appState.isSettingsPanelOpen = false
                             }
                         }
+                        #if !os(tvOS)
+                        .gesture(
+                            DragGesture(minimumDistance: 50)
+                                .onEnded { value in
+                                    if value.translation.width > 80 && abs(value.translation.height) < 80 {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                            appState.isSettingsPanelOpen = false
+                                        }
+                                    }
+                                }
+                        )
+                        #endif
 
                     SettingsPanel(appState: appState) {
                         withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
@@ -195,11 +228,11 @@ struct ContentView: View {
         .gesture(
             DragGesture(minimumDistance: 50)
                 .onEnded { value in
-                    if value.translation.width > 100 && abs(value.translation.height) < 80 {
+                    if value.translation.width < -100 && abs(value.translation.height) < 80 && !appState.isSettingsPanelOpen {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                             appState.isSettingsPanelOpen = true
                         }
-                    } else if value.translation.width < -100 && abs(value.translation.height) < 80 && appState.isSettingsPanelOpen {
+                    } else if value.translation.width > 100 && abs(value.translation.height) < 80 && appState.isSettingsPanelOpen {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                             appState.isSettingsPanelOpen = false
                         }
@@ -217,6 +250,11 @@ struct ContentView: View {
         .onPlayPauseCommand {
             withAnimation(.easeInOut(duration: theme.motion.transitionDuration)) {
                 appState.isSettingsPanelOpen.toggle()
+            }
+        }
+        .onChange(of: appState.isSettingsPanelOpen) { _, isOpen in
+            if !isOpen {
+                focusedElement = .weather
             }
         }
         .task {

@@ -413,6 +413,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TTime/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Time Dashboard";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "TTime uses the local network to fetch weather, news, and market data.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -446,6 +447,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TTime/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Time Dashboard";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "TTime uses the local network to fetch weather, news, and market data.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;

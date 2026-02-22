@@ -74,17 +74,11 @@ struct SettingsPanel: View {
 
                         // MARK: Markets
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("MARKETS")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.leading, 4)
-
                             let tickers = MarketTicker.availableTickers
                                 .filter { $0.id == "btc-usd" || $0.id == "sp500" }
                             ForEach(tickers) { ticker in
                                 HStack {
                                     Text(ticker.symbol)
-                                        .font(.system(.body, design: .monospaced).bold())
                                     Spacer()
                                     Toggle("", isOn: Binding(
                                         get: { appState.enabledTickers.contains(ticker.id) },
@@ -131,7 +125,10 @@ struct SettingsPanel: View {
                             .padding(.horizontal, 8)
 
                             HStack {
-                                Toggle("Show Location", isOn: $appState.showWeatherLocation)
+                                Text("Location")
+                                Spacer()
+                                Toggle("", isOn: $appState.showWeatherLocation)
+                                    .labelsHidden()
                             }
                             .padding(.vertical, 4)
                             .padding(.horizontal, 8)
@@ -172,5 +169,16 @@ struct SettingsPanel: View {
             Spacer()
         }
         .transition(.move(edge: .leading).combined(with: .opacity))
+        .contentShape(Rectangle())
+        #if !os(tvOS)
+        .gesture(
+            DragGesture(minimumDistance: 40)
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 60 {
+                        onClose()
+                    }
+                }
+        )
+        #endif
     }
 }
